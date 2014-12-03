@@ -14,7 +14,7 @@ def start():
   graph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
 
   loader = jsonloader.jsonloader()
-  loader.load_json("untitled.json", graph.Root.value)
+  loader.load_json("test.json", graph.Root.value)
 
   eye = avango.gua.nodes.TransformNode(Name = "eye")
   eye.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, 3.5)
@@ -34,6 +34,9 @@ def start():
                                    Window = avango.gua.nodes.Window(Size = size,
                                                                     LeftResolution = size),
                                    LeftResolution = size)
+
+  loader.load_and_set_PipelineOptions(pipe)
+
 
   #setup viewer
   viewer = avango.gua.nodes.Viewer()

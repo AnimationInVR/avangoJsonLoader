@@ -66,3 +66,8 @@ class jsonloader:
     self.root_node.Children.value.append(light)
 
 
+  def load_and_set_PipelineOptions(self, pipe):
+    pipe.EnableSsao.value    = self.json_data["pipeline_options"]["SSAO_settings"]["enable"]
+    pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["SSAO_settings"]["radius"]
+    pipe.SsaoIntensity.value = self.json_data["pipeline_options"]["SSAO_settings"]["intensity"]
+    pipe.SsaoFalloff.value   = self.json_data["pipeline_options"]["SSAO_settings"]["falloff"]

@@ -67,6 +67,17 @@ class jsonloader:
 
 
   def load_and_set_PipelineOptions(self, pipe):
+    # GENERAL
+    pipe.EnablePreviewDisplay.value   = self.json_data["pipeline_options"]["enable_preview_display"]
+    pipe.EnableFPSDisplay.value       = self.json_data["pipeline_options"]["enable_fps_display"]
+    pipe.EnableRayDisplay.value       = self.json_data["pipeline_options"]["enable_ray_display"]
+    pipe.EnableBBoxDisplay.value      = self.json_data["pipeline_options"]["enable_bbox_display"]
+    pipe.EnableWireframe.value        = self.json_data["pipeline_options"]["enable_wire_frame"]
+    pipe.EnableFXAA.value             = self.json_data["pipeline_options"]["enable_FXAA"]
+    pipe.EnableFrustumCulling.value   = self.json_data["pipeline_options"]["enable_frustum_culling"]
+    pipe.EnableBackfaceCulling.value  = self.json_data["pipeline_options"]["enable_backface_culling"]
+
+    # SSAO
     pipe.EnableSsao.value    = self.json_data["pipeline_options"]["SSAO_settings"]["enable"]
     pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["SSAO_settings"]["radius"]
     pipe.SsaoIntensity.value = self.json_data["pipeline_options"]["SSAO_settings"]["intensity"]

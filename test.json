@@ -60,6 +60,15 @@
 	},
 
 	"pipeline_options": {
+      	"enable_preview_display":false,
+      	"enable_fps_display":true,
+      	"enable_ray_display":false,
+      	"enable_bbox_display":false,
+      	"enable_wire_frame":false,
+      	"enable_FXAA":true,
+      	"enable_frustum_culling":true,
+      	"enable_backface_culling":true,
+
         "SSAO_settings": {
             "enable":true,
             "radius":7.0,

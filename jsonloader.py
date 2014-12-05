@@ -35,6 +35,7 @@ class jsonloader:
     
     quaternion = self.json_data["objects"][object]["quaternion"]
     quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
+    quaternion.normalize()
     
     scale = self.json_data["objects"][object]["scale"]
     scale = avango.gua.Vec3(scale[0], scale[1], scale[2])

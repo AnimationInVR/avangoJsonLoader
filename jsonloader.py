@@ -81,8 +81,14 @@ class jsonloader:
     pipe.NearClip.value  = self.json_data["pipeline_options"]["near_clip"]
     pipe.FarClip.value  = self.json_data["pipeline_options"]["far_clip"]
 
+    # BLOOM
+    pipe.EnableBloom.value    = self.json_data["pipeline_options"]["bloom_settings"]["enable"]
+    pipe.BloomRadius.value    = self.json_data["pipeline_options"]["bloom_settings"]["radius"]
+    pipe.BloomThreshold.value = self.json_data["pipeline_options"]["bloom_settings"]["threshold"]
+    pipe.BloomIntensity.value = self.json_data["pipeline_options"]["bloom_settings"]["intensity"]
+
     # SSAO
-    pipe.EnableSsao.value    = self.json_data["pipeline_options"]["SSAO_settings"]["enable"]
-    pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["SSAO_settings"]["radius"]
-    pipe.SsaoIntensity.value = self.json_data["pipeline_options"]["SSAO_settings"]["intensity"]
-    pipe.SsaoFalloff.value   = self.json_data["pipeline_options"]["SSAO_settings"]["falloff"]
+    pipe.EnableSsao.value    = self.json_data["pipeline_options"]["ssao_settings"]["enable"]
+    pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["ssao_settings"]["radius"]
+    pipe.SsaoIntensity.value = self.json_data["pipeline_options"]["ssao_settings"]["intensity"]
+    pipe.SsaoFalloff.value   = self.json_data["pipeline_options"]["ssao_settings"]["falloff"]

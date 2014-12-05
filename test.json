@@ -72,7 +72,14 @@
         "near_clip":0.1,
         "far_clip":1000.0,
 
-        "SSAO_settings": {
+        "bloom_settings": {
+            "enable":true,
+            "radius":0.3,
+            "threshold":0.4,
+            "intensity":0.8
+        },
+
+        "ssao_settings": {
             "enable":true,
             "radius":7.0,
             "intensity":2.0,

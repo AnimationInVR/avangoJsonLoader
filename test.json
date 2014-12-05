@@ -45,7 +45,7 @@
             "position"  : [ 4.07625, 5.90386, 1.00545 ],
             "rotation"  : [ 0.650328, 1.86639, 0.0552171 ],
             "color"     : 16777215,
-            "distance"  : 100.000,
+            "distance"  : 20.000,
             "intensity" : 1.000
         },
         "Camera": {
@@ -74,13 +74,13 @@
 
         "ssao_settings": {
             "enable":true,
-            "radius":7.0,
-            "intensity":2.0,
-            "falloff":0
+            "radius":8.0,
+            "intensity":3.0,
+            "falloff":0.2
         },
 
         "bloom_settings": {
-            "enable":true,
+            "enable":false,
             "radius":0.3,
             "threshold":0.4,
             "intensity":0.8
@@ -89,7 +89,7 @@
         "fog_settings": {
             "enable":true,
             "start":2.5,
-            "end":3.5,
+            "end":4.0,
             "texture":"",
             "color": [ 0.3, 0.3, 0.4 ]
         },
@@ -101,10 +101,15 @@
         },
 
         "vignette_settings": {
-            "enable":true,
+            "enable":false,
             "color": [ 0.0, 0.0, 0.0 ],
             "coverage":0.5,
             "softness":0.5
+        },
+
+        "hdr_settings": {
+            "enable":false,
+            "key":0.5
         }
     },
 

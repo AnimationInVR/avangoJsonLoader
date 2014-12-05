@@ -16,7 +16,7 @@
             "type"          : "TriMeshGeometry",
             "geometry"      : "data/objects/cube.obj",
             "groups"        : [  ],
-            "material"      : "data/materials/Stones.gmd",
+            "material"      : "data/materials/White.gmd",
             "position"      : [ 0.2, 0, 0 ],
             "rotation"      : [ -1.5708, 0, 0 ],
             "quaternion"    : [ -0.707107, -0.2, 0, 0.707107 ],
@@ -28,13 +28,13 @@
         },
         "Cube2": {
             "type"          : "TriMeshGeometry",
-            "geometry"      : "data/objects/cube.obj",
+            "geometry"      : "data/objects/monkey.obj",
             "groups"        : [  ],
             "material"      : "data/materials/Stones.gmd",
-            "position"      : [ -0.2, 0, 0 ],
+            "position"      : [ -0.5, 0, 1 ],
             "rotation"      : [ -1.5708, 0, 0 ],
-            "quaternion"    : [ -0.707107, -0.5, 0, 0.707107 ],
-            "scale"         : [ 0.6, 1.2, 1 ],
+            "quaternion"    : [ 0.1, 0.1, 0.1, -0.4 ],
+            "scale"         : [ 0.3, 0.3, 0.4 ],
             "visible"       : true,
             "castShadow"    : false,
             "receiveShadow" : false,
@@ -74,37 +74,37 @@
 
         "ssao_settings": {
             "enable":true,
-            "radius":8.0,
-            "intensity":3.0,
-            "falloff":0.2
+            "radius":3.0,
+            "intensity":5.0,
+            "falloff":1.41
         },
 
         "bloom_settings": {
             "enable":false,
-            "radius":0.3,
-            "threshold":0.4,
-            "intensity":0.8
+            "radius":13.6,
+            "threshold":0.1,
+            "intensity":0.4
         },
 
         "fog_settings": {
             "enable":true,
-            "start":2.5,
-            "end":4.0,
+            "start":1.5,
+            "end":3.5,
             "texture":"",
-            "color": [ 0.3, 0.3, 0.4 ]
+            "color": [ 0.3, 0.27, 0.27 ]
         },
 
         "background_settings": {
             "mode":0,
             "texture":"",
-            "color": [ 0.3, 0.3, 0.4 ]
+            "color": [ 0.3, 0.27, 0.27 ]
         },
 
         "vignette_settings": {
-            "enable":false,
-            "color": [ 0.0, 0.0, 0.0 ],
-            "coverage":0.5,
-            "softness":0.5
+            "enable":true,
+            "color": [ 0.1, 0.0, 0.0 ],
+            "coverage":0.6,
+            "softness":0.2
         },
 
         "hdr_settings": {

@@ -106,3 +106,9 @@ class jsonloader:
     pipe.BackgroundTexture.value = str( self.json_data["pipeline_options"]["background_settings"]["texture"] )
     background_color = self.json_data["pipeline_options"]["background_settings"]["color"]
     pipe.BackgroundColor.value   = avango.gua.Color(background_color[0], background_color[1], background_color[2])
+
+    pipe.EnableVignette.value   = self.json_data["pipeline_options"]["vignette_settings"]["enable"]
+    vignette_color = self.json_data["pipeline_options"]["vignette_settings"]["color"]
+    pipe.VignetteColor.value   = avango.gua.Color(vignette_color[0], vignette_color[1], vignette_color[2])
+    pipe.VignetteCoverage.value = self.json_data["pipeline_options"]["vignette_settings"]["coverage"]
+    pipe.VignetteSoftness.value = self.json_data["pipeline_options"]["vignette_settings"]["softness"]

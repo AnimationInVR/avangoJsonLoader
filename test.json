@@ -61,7 +61,7 @@
 
     "pipeline_options": {
         "enable_preview_display":false,
-        "enable_fps_display":false,
+        "enable_fps_display":true,
         "enable_ray_display":false,
         "enable_bbox_display":false,
         "enable_wire_frame":false ,
@@ -87,17 +87,24 @@
         },
 
         "fog_settings": {
-            "enable":false,
-            "start":3,
-            "end":5,
+            "enable":true,
+            "start":2.5,
+            "end":3.5,
             "texture":"",
-            "color": [ 1, 0.2, 0.2 ]
+            "color": [ 0.3, 0.3, 0.4 ]
         },
 
         "background_settings": {
             "mode":0,
             "texture":"",
-            "color": [ 0.03, 0.03, 0.1 ]
+            "color": [ 0.3, 0.3, 0.4 ]
+        },
+
+        "vignette_settings": {
+            "enable":true,
+            "color": [ 0.0, 0.0, 0.0 ],
+            "coverage":0.5,
+            "softness":0.5
         }
     },
 

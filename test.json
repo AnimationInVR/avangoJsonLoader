@@ -72,6 +72,13 @@
         "near_clip":0.1,
         "far_clip":1000.0,
 
+        "ssao_settings": {
+            "enable":true,
+            "radius":7.0,
+            "intensity":2.0,
+            "falloff":0
+        },
+
         "bloom_settings": {
             "enable":true,
             "radius":0.3,
@@ -79,11 +86,18 @@
             "intensity":0.8
         },
 
-        "ssao_settings": {
-            "enable":true,
-            "radius":7.0,
-            "intensity":2.0,
-            "falloff":0
+        "fog_settings": {
+            "enable":false,
+            "start":3,
+            "end":5,
+            "texture":"",
+            "color": [ 1, 0.2, 0.2 ]
+        },
+
+        "background_settings": {
+            "mode":0,
+            "texture":"",
+            "color": [ 0.03, 0.03, 0.1 ]
         }
     },
 

@@ -81,14 +81,28 @@ class jsonloader:
     pipe.NearClip.value  = self.json_data["pipeline_options"]["near_clip"]
     pipe.FarClip.value  = self.json_data["pipeline_options"]["far_clip"]
 
+    # SSAO
+    pipe.EnableSsao.value    = self.json_data["pipeline_options"]["ssao_settings"]["enable"]
+    pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["ssao_settings"]["radius"]
+    pipe.SsaoIntensity.value = self.json_data["pipeline_options"]["ssao_settings"]["intensity"]
+    pipe.SsaoFalloff.value   = self.json_data["pipeline_options"]["ssao_settings"]["falloff"]
+
     # BLOOM
     pipe.EnableBloom.value    = self.json_data["pipeline_options"]["bloom_settings"]["enable"]
     pipe.BloomRadius.value    = self.json_data["pipeline_options"]["bloom_settings"]["radius"]
     pipe.BloomThreshold.value = self.json_data["pipeline_options"]["bloom_settings"]["threshold"]
     pipe.BloomIntensity.value = self.json_data["pipeline_options"]["bloom_settings"]["intensity"]
 
-    # SSAO
-    pipe.EnableSsao.value    = self.json_data["pipeline_options"]["ssao_settings"]["enable"]
-    pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["ssao_settings"]["radius"]
-    pipe.SsaoIntensity.value = self.json_data["pipeline_options"]["ssao_settings"]["intensity"]
-    pipe.SsaoFalloff.value   = self.json_data["pipeline_options"]["ssao_settings"]["falloff"]
+    # FOG
+    pipe.EnableFog.value   = self.json_data["pipeline_options"]["fog_settings"]["enable"]
+    pipe.FogStart.value    = self.json_data["pipeline_options"]["fog_settings"]["start"]
+    pipe.FogEnd.value      = self.json_data["pipeline_options"]["fog_settings"]["end"]
+    pipe.FogTexture.value  = str( self.json_data["pipeline_options"]["fog_settings"]["texture"] )
+    fog_color = self.json_data["pipeline_options"]["fog_settings"]["color"]
+    pipe.FogColor.value    = avango.gua.Color(fog_color[0], fog_color[1], fog_color[2])
+
+    # BACKGROUND
+    pipe.BackgroundMode.value    = self.json_data["pipeline_options"]["background_settings"]["mode"]
+    pipe.BackgroundTexture.value = str( self.json_data["pipeline_options"]["background_settings"]["texture"] )
+    background_color = self.json_data["pipeline_options"]["background_settings"]["color"]
+    pipe.BackgroundColor.value   = avango.gua.Color(background_color[0], background_color[1], background_color[2])

@@ -11,6 +11,7 @@ class jsonloader:
     self.root_node = None
     self.TriMeshLoader = avango.gua.nodes.TriMeshLoader()
 
+
   def load_json(self, path, root_node):
     json_file = open(path)
     self.json_data = json.load(json_file)
@@ -18,6 +19,7 @@ class jsonloader:
 
     for object in self.json_data["objects"]:
       self.load_object(object)
+
 
   def load_object(self, object):
     if (self.json_data["objects"][object]["type"] == "TriMeshGeometry"):
@@ -58,9 +60,14 @@ class jsonloader:
     transformation = avango.gua.make_trans_mat(translate) \
                    * avango.gua.make_scale_mat(scale)
     
+    color_hexstring = str(hex(self.json_data["objects"][object]["color"]))
+    red = float(int(color_hexstring[2]+color_hexstring[3],16)) /255
+    green = float(int(color_hexstring[4]+color_hexstring[5],16)) /255
+    blue = float(int(color_hexstring[6]+color_hexstring[7],16)) /255
+
     
     light = avango.gua.nodes.PointLightNode( Name = str(object)
-                                           , Color = avango.gua.Color(1.0, 1.0, 1.0) )
+                                           , Color = avango.gua.Color(red, green, blue) )
     light.Transform.value = transformation
 
     self.root_node.Children.value.append(light)

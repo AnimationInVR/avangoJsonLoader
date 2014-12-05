@@ -77,6 +77,10 @@ class jsonloader:
     pipe.EnableFrustumCulling.value   = self.json_data["pipeline_options"]["enable_frustum_culling"]
     pipe.EnableBackfaceCulling.value  = self.json_data["pipeline_options"]["enable_backface_culling"]
 
+    # CLIPPING
+    pipe.NearClip.value  = self.json_data["pipeline_options"]["near_clip"]
+    pipe.FarClip.value  = self.json_data["pipeline_options"]["far_clip"]
+
     # SSAO
     pipe.EnableSsao.value    = self.json_data["pipeline_options"]["SSAO_settings"]["enable"]
     pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["SSAO_settings"]["radius"]

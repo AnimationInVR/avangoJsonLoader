@@ -30,7 +30,8 @@ class jsonloader:
 
 
   def load_TriMeshGeometry(self, object):
-    translate = self.json_data["objects"][object]["position"] 
+    print "load geometry ", object
+    translate = self.json_data["objects"][object]["position"]
     translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
     
     quaternion = self.json_data["objects"][object]["quaternion"]
@@ -40,19 +41,21 @@ class jsonloader:
     scale = self.json_data["objects"][object]["scale"]
     scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
 
-    transformation = avango.gua.make_trans_mat(translate) \
-                   * avango.gua.make_rot_mat(quaternion) \
-                   * avango.gua.make_scale_mat(scale)
+    # transformation = avango.gua.make_trans_mat(translate) \
+                   # * avango.gua.make_rot_mat(quaternion) \
+                   # * avango.gua.make_scale_mat(scale)
+    transformation = avango.gua.make_identity_mat()
     
     geometry = self.TriMeshLoader.create_geometry_from_file( str(object)
                                                            , str(self.json_data["objects"][object]["geometry"])
                                                            , str(self.json_data["objects"][object]["material"])
-                                                           , avango.gua.LoaderFlags.DEFAULTS)
+                                                           , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
     geometry.Transform.value = transformation
     self.root_node.Children.value.append(geometry)
 
 
   def load_PointLight(self, object):
+    print "load light ", object
     translate = self.json_data["objects"][object]["position"] 
     translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
 
@@ -80,7 +83,7 @@ class jsonloader:
     pipe.EnableFPSDisplay.value       = self.json_data["pipeline_options"]["enable_fps_display"]
     pipe.EnableRayDisplay.value       = self.json_data["pipeline_options"]["enable_ray_display"]
     pipe.EnableBBoxDisplay.value      = self.json_data["pipeline_options"]["enable_bbox_display"]
-    pipe.EnableWireframe.value        = self.json_data["pipeline_options"]["enable_wire_frame"]
+    # pipe.EnableWireframe.value        = self.json_data["pipeline_options"]["enable_wire_frame"]
     pipe.EnableFXAA.value             = self.json_data["pipeline_options"]["enable_FXAA"]
     pipe.EnableFrustumCulling.value   = self.json_data["pipeline_options"]["enable_frustum_culling"]
     pipe.EnableBackfaceCulling.value  = self.json_data["pipeline_options"]["enable_backface_culling"]

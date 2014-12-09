@@ -1,127 +1,104 @@
 {
-    "urlBaseType": "relativeToHTML",
-    "metadata": {
-        "formatVersion" : 3.2,
-        "type"          : "scene",
-        "sourceFile"    : "",
-        "generatedBy"   : "Blender 2.7 Exporter",
-        "objects"       : 3,
-        "geometries"    : 1,
-        "materials"     : 1,
-        "textures"      : 0
-    },
+	"urlBaseType": "relativeToHTML",
+	"metadata": {
+		"formatVersion" : 3.2,
+		"type"          : "scene",
+		"sourceFile"    : "test.blend",
+		"generatedBy"   : "Blender 2.7 Exporter",
+		"objects"       : 2,
+		"geometries"    : 1,
+		"materials"     : 0,
+		"textures"      : 0
+	},
 
-    "objects": {
-        "Cube": {
-            "type"          : "TriMeshGeometry",
-            "geometry"      : "data/objects/cube.obj",
-            "groups"        : [  ],
-            "material"      : "data/materials/White.gmd",
-            "position"      : [ 0.2, 0, 0 ],
-            "rotation"      : [ -1.5708, 0, 0 ],
-            "quaternion"    : [ -0.707107, -0.2, 0, 0.707107 ],
-            "scale"         : [ 1, 1, 1 ],
-            "visible"       : true,
-            "castShadow"    : false,
-            "receiveShadow" : false,
-            "doubleSided"   : false
-        },
-        "Cube2": {
-            "type"          : "TriMeshGeometry",
-            "geometry"      : "data/objects/monkey.obj",
-            "groups"        : [  ],
-            "material"      : "data/materials/Stones.gmd",
-            "position"      : [ -0.5, 0, 1 ],
-            "rotation"      : [ -1.5708, 0, 0 ],
-            "quaternion"    : [ 0.1, 0.1, 0.1, -0.4 ],
-            "scale"         : [ 0.3, 0.3, 0.4 ],
-            "visible"       : true,
-            "castShadow"    : false,
-            "receiveShadow" : false,
-            "doubleSided"   : false
-        },
-        "Lamp": {
-            "type"      : "PointLight",
-            "position"  : [ 4.07625, 5.90386, 1.00545 ],
-            "rotation"  : [ 0.650328, 1.86639, 0.0552171 ],
-            "color"     : 16777215,
-            "distance"  : 20.000,
-            "intensity" : 1.000
-        },
-        "Camera": {
-            "type"     : "PerspectiveCamera",
-            "fov"      : 49.159264,
-            "aspect"   : 1.333000,
-            "near"     : 0.100000,
-            "far"      : 100.000000,
-            "position" : [ 7.48113, 5.34367, 6.50764 ],
-            "target"   : [ 0, 0, 0 ]
-        }
-    },
+	"objects": {
+		"Sphere": {
+            "type"      : "TriMeshGeometry",
+			"geometry"      : "data/objects/Sphere.obj",
+			"material"      : "data/materials/.gmd",
+			"position"      : [ 0, 0, 0 ],
+			"quaternion"    : [ -0.00617061, 0.70708, 0.70708, 0.00617061 ],
+			"scale"         : [ 1, 1, 1 ],
+			
+			"castShadow"    : false,
+			"receiveShadow" : false
+		},
+		"Lamp": {
+			"type"      : "PointLight",
+			"position"  : [ 2.84496, 2.27358, 0.894137 ],
+			"color"     : 16777215,
+			"distance"  : 30.000,
+			"intensity" : 1.000
+		}
+	},
 
-    "pipeline_options": {
+	"cameras": {
+		"Camera": {
+			"type"     : "PerspectiveCamera",
+			"fov"      : 56.173456,
+			"aspect"   : 1.333000,
+			"near"     : 0.100000,
+			"far"      : 100.000000,
+			"position" : [ 0, 0, 4.17989 ],
+			"target"   : [ 0, 0, 0 ]
+		}
+	},
+
+	"pipeline_options": {
         "enable_preview_display":false,
         "enable_fps_display":true,
         "enable_ray_display":false,
         "enable_bbox_display":false,
-        "enable_wire_frame":false ,
-        "enable_FXAA":true,
-        "enable_frustum_culling":true,
-        "enable_backface_culling":true,
-
-        "near_clip":0.1,
-        "far_clip":1000.0,
-
-        "ssao_settings": {
-            "enable":true,
-            "radius":3.0,
-            "intensity":5.0,
-            "falloff":1.41
-        },
-
+        "enable_FXAA":false,
+        "enable_frustum_culling":false,
+        "enable_backface_culling":false,
+        "near_clip":1.000000,
+        "far_clip":100.123000
+        ,
         "bloom_settings": {
             "enable":false,
-            "radius":13.6,
-            "threshold":0.1,
-            "intensity":0.4
+            "radius":0,
+            "threshold":0,
+            "intensity":0
         },
-
+        "ssao_settings": {
+            "enable":false,
+            "radius":0,
+            "intensity":0,
+            "falloff":0
+        },
         "fog_settings": {
-            "enable":true,
-            "start":1.5,
-            "end":3.5,
+            "enable":false,
+            "start":1,
+            "end":4,
             "texture":"",
-            "color": [ 0.3, 0.27, 0.27 ]
+            "color":[0.5,0.5,0.5]
         },
-
         "background_settings": {
             "mode":0,
             "texture":"",
-            "color": [ 0.3, 0.27, 0.27 ]
+            "color":[0.5,0.5,0.5]
         },
-
         "vignette_settings": {
-            "enable":true,
-            "color": [ 0.1, 0.0, 0.0 ],
-            "coverage":0.6,
-            "softness":0.2
+            "enable":false,
+            "color":[0.5,0.5,0.5],
+            "coverage":1,
+            "softness":4
         },
-
         "hdr_settings": {
             "enable":false,
-            "key":0.5
+            "key":1.0
         }
-    },
+	},
 
-    "transform": {
-        "position" : [ 0, 0, 0 ],
-        "rotation" : [ 0, 0, 0 ],
-        "scale"    : [ 1, 1, 1 ]
-    },
-
-    "defaults": {
-        "bgcolor" : [ 0, 0, 0 ],
-        "bgalpha" : 1.000000,
-        "camera"  : "default_camera"
-    }
+	"transform": {
+		"position" : [ 0, 0, 0 ],
+		"rotation" : [ 0, 0, 0 ],
+		"scale"    : [ 1, 1, 1 ]
+	},
+	"defaults": {
+		"bgcolor" : [ 0, 0, 0 ],
+		"bgalpha" : 1.000000,
+		"camera"  : "default_camera"
+	}
 }

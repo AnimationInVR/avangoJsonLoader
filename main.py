@@ -29,7 +29,7 @@ class Reloader(avango.script.Script):
     self.root = root
     self.pipe = pipe
     
-    self.loader.load_json("test.json", self.root)
+    self.loader.load_json(self.json_path, self.root)
     self.loader.load_and_set_PipelineOptions(self.pipe)
 
 
@@ -37,7 +37,7 @@ class Reloader(avango.script.Script):
     # Key P for printing Cone Tree
     if self.Keyboard.KeyR.value and not self.KeyR:
       self.root.Children.value = []
-      self.loader.load_json("test.json", self.root)
+      self.loader.load_json(self.json_path, self.root)
       self.loader.load_and_set_PipelineOptions(self.pipe)
     self.KeyR = self.Keyboard.KeyR.value
 

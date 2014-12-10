@@ -57,9 +57,9 @@ class jsonloader:
   def load_PointLight(self, object):
     print "load light ", object
     translate = self.json_data["objects"][object]["position"] 
-    translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
+    translate = avango.gua.Vec3(translate[0], translate[1], -translate[2])
 
-    scale = self.json_data["objects"][object]["distance"]
+    scale = self.json_data["objects"][object]["distance"] * 2.0
 
     transformation = avango.gua.make_trans_mat(translate) \
                    * avango.gua.make_scale_mat(scale)
@@ -73,6 +73,7 @@ class jsonloader:
     light = avango.gua.nodes.PointLightNode( Name = str(object)
                                            , Color = avango.gua.Color(red, green, blue) )
     light.Transform.value = transformation
+    light.EnableShadows.value = True
 
     self.root_node.Children.value.append(light)
 

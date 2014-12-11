@@ -27,6 +27,30 @@ class jsonloader:
     
     if (self.json_data["objects"][object]["type"] == "PointLight"):
       self.load_PointLight(object)
+      
+    if (self.json_data["objects"][object]["type"] == "Empty"):
+      self.load_TransformNode(object)
+
+  def load_TransformNode(self, object):
+    print "load Transformnode ", object
+    translate = self.json_data["objects"][object]["position"]
+    translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
+    
+    quaternion = self.json_data["objects"][object]["quaternion"]
+    quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
+    quaternion.normalize()
+    
+    scale = self.json_data["objects"][object]["scale"]
+    scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
+
+    transformation = avango.gua.make_trans_mat(translate) \
+             * avango.gua.make_rot_mat(quaternion) \
+             * avango.gua.make_scale_mat(scale)
+
+    node = avango.gua.nodes.TransformNode(Name = str(object))
+    node.Transform.value = transformation
+
+    self.root_node.Children.value.append(node)
 
 
   def load_TriMeshGeometry(self, object):
@@ -42,14 +66,14 @@ class jsonloader:
     scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
 
     # transformation = avango.gua.make_trans_mat(translate) \
-                   # * avango.gua.make_rot_mat(quaternion) \
-                   # * avango.gua.make_scale_mat(scale)
+             # * avango.gua.make_rot_mat(quaternion) \
+             # * avango.gua.make_scale_mat(scale)
     transformation = avango.gua.make_identity_mat()
     
     geometry = self.TriMeshLoader.create_geometry_from_file( str(object)
-                                                           , str(self.json_data["objects"][object]["geometry"])
-                                                           , str(self.json_data["objects"][object]["material"])
-                                                           , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
+                                 , str(self.json_data["objects"][object]["geometry"])
+                                 , str(self.json_data["objects"][object]["material"])
+                                 , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
     geometry.Transform.value = transformation
     self.root_node.Children.value.append(geometry)
 
@@ -62,7 +86,7 @@ class jsonloader:
     scale = self.json_data["objects"][object]["distance"] * 2.0
 
     transformation = avango.gua.make_trans_mat(translate) \
-                   * avango.gua.make_scale_mat(scale)
+             * avango.gua.make_scale_mat(scale)
     
     color_hexstring = str(hex(self.json_data["objects"][object]["color"]))
     red = float(int(color_hexstring[2]+color_hexstring[3],16)) /255
@@ -71,7 +95,7 @@ class jsonloader:
 
     
     light = avango.gua.nodes.PointLightNode( Name = str(object)
-                                           , Color = avango.gua.Color(red, green, blue) )
+                         , Color = avango.gua.Color(red, green, blue) )
     light.Transform.value = transformation
     light.EnableShadows.value = True
 

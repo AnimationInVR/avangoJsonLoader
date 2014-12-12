@@ -23,22 +23,25 @@ class Reloader(avango.script.Script):
     self.KeyR = False
 
 
-  def myConstructor(self, json_path, root, pipe):
+  def myConstructor(self, json_path, root):
     self.loader = jsonloader.jsonloader()
     self.json_path = json_path
     self.root = root
-    self.pipe = pipe
-    
-    self.loader.load_json(self.json_path, self.root)
-    self.loader.load_and_set_PipelineOptions(self.pipe)
+    # self.pipe = pipe
+    self.reload()    
 
+  def get_window(self):
+    return self.loader.windows[0]
+
+  def reload(self):
+    self.root.Children.value = []
+    self.loader.load_json(self.json_path, self.root)
+    # self.loader.load_and_set_PipelineOptions(self.pipe)
 
   def evaluate(self):
-    # Key P for printing Cone Tree
     if self.Keyboard.KeyR.value and not self.KeyR:
-      self.root.Children.value = []
-      self.loader.load_json(self.json_path, self.root)
-      self.loader.load_and_set_PipelineOptions(self.pipe)
+      pass
+      # self.reload()
     self.KeyR = self.Keyboard.KeyR.value
 
 
@@ -57,7 +60,18 @@ def start():
   screen = avango.gua.nodes.ScreenNode(Name = "screen", Width = 4, Height = 3)
   screen.Children.value = [eye]
 
-  graph.Root.value.Children.value = [screen, scene]
+  loader = avango.gua.nodes.TriMeshLoader()
+  test = self.TriMeshLoader.create_geometry_from_file( name
+                                 , "data/objects/Frog.obj"
+                                 , "data/materials/White.gmd"
+                                 , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
+
+  graph.Root.value.Children.value = [screen, scene, test]
+
+  reloader = Reloader()
+  reloader.myConstructor("blabla.json", scene)
+
+  window = reloader.get_window()
 
   # setup viewing
   size = avango.gua.Vec2ui(1024, 768)
@@ -66,13 +80,10 @@ def start():
                                                                     LeftScreen = "/screen",
                                                                     RightScreen = "/screen",
                                                                     SceneGraph = "scenegraph"),
-                                   Window = avango.gua.nodes.Window(Size = size,
-                                                                    LeftResolution = size),
+                                   Window = window,
                                    LeftResolution = size)
 
 
-  reloader = Reloader()
-  reloader.myConstructor("test.json", scene, pipe)
 
   #setup viewer
   viewer = avango.gua.nodes.Viewer()

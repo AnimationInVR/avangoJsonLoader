@@ -10,15 +10,173 @@ class jsonloader:
     self.json_data = None
     self.root_node = None
     self.TriMeshLoader = avango.gua.nodes.TriMeshLoader()
-
+    self.windows = []
+    self.scene_graph_nodes = {}
+    self.child_parent_pairs =[]
 
   def load_json(self, path, root_node):
     json_file = open(path)
     self.json_data = json.load(json_file)
     self.root_node = root_node
 
-    for object in self.json_data["objects"]:
-      self.load_object(object)
+    for viewer in self.json_data["viewer"]:
+      self.load_viewer(viewer)
+
+    for screen in self.json_data["screens"]:
+      new_screen = self.load_screen(screen)
+      self.scene_graph_nodes[screen] = new_screen
+
+    for window in self.json_data["windows"]:
+      self.windows.append( self.load_window(window) )
+
+    for mesh in self.json_data["meshes"]:
+      new_mesh = self.load_mesh(mesh)
+      self.scene_graph_nodes[new_mesh.Name.value] = new_mesh
+
+    for camera in self.json_data["cameras"]:
+      self.load_camera(camera)
+
+    for transform in self.json_data["transforms"]:
+      new_transform = self.load_transform(transform)
+      self.scene_graph_nodes[transform] = new_transform
+
+    for light in self.json_data["lights"]:
+      new_light = self.load_light(light)
+      self.scene_graph_nodes[light] = new_light
+    
+    for scenegraph in self.json_data["scenegraphs"]:
+      self.load_scenegraph(scenegraph)
+  
+    self.create_scenegraph_structure()  
+
+  def create_scenegraph_structure(self):
+    for pair in self.child_parent_pairs:
+      self.scene_graph_nodes[pair[1]].Children.value.append(self.scene_graph_nodes[pair[0]])
+
+  def load_viewer(self, viewer):
+    print("load viewer" , viewer)
+    # TODO        
+
+  def load_screen(self, screen):
+    print("load screen" , screen)        
+    return "dummy"
+    # TODO        
+
+  def load_window(self, window):
+    print("load window" , window)   
+
+    json_window = self.json_data["windows"][window]
+
+    name = str(json_window["name"])
+    size = avango.gua.Vec2ui(json_window["width"], 
+                             json_window["height"] )
+    title = str( json_window["title_field"] )
+
+    mode = 0
+    if (json_window["mode"] == "MONO"):
+      mode = 0
+    # TODO more stereo modes
+
+    display = str(json_window["display_field"])
+
+    new_window = avango.gua.nodes.Window(Name = name, Size = size, LeftResolution = size,
+                  StereoMode = mode, Title = title, Display = display)
+    
+    return new_window 
+
+
+  def load_mesh(self, mesh):
+    print("load mesh" , mesh) 
+
+    json_mesh = self.json_data["meshes"][mesh]
+
+    name = str(json_mesh["name"])
+    parent = str(json_mesh["parent"])
+
+    # translate = self.json_data["objects"][object]["position"]
+    # translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
+    
+    # quaternion = self.json_data["objects"][object]["quaternion"]
+    # quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
+    # quaternion.normalize()
+    
+    # scale = self.json_data["objects"][object]["scale"]
+    # scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
+
+    # transformation = avango.gua.make_trans_mat(translate) \
+             # * avango.gua.make_rot_mat(quaternion) \
+             # * avango.gua.make_scale_mat(scale)
+
+    transformation = avango.gua.make_identity_mat()
+    
+    geometry = self.TriMeshLoader.create_geometry_from_file( name
+                                 , str(json_mesh["geometry"])
+                                 , str(json_mesh["material"])
+                                 , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
+    geometry.Transform.value = transformation
+
+    self.child_parent_pairs.append( (name, parent) )
+    
+    return geometry
+
+  def load_camera(self, camera):
+    print("load camera" , camera)        
+
+    json_camera = self.json_data["cameras"][camera]
+
+    name = str(json_camera["name"])
+    resolution = avango.gua.Vec2ui(json_camera["resolution"][0], json_camera["resolution"][1] )
+
+    # TODO new camera layout
+    # new_camera = avango.gua.nodes.Camera(Name = name, LeftResolution = size,
+                  # StereoMode = mode, Title = title, Display = display)
+    
+    # return new_camera 
+
+
+  def load_transform(self, transform):       
+    print("load transform" , transform)       
+ 
+    json_transform = self.json_data["transforms"][transform]
+
+    name = str(json_transform["name"])
+    parent = str(json_transform["parent"])
+
+    # translate = self.json_data["objects"][object]["position"]
+    # translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
+    
+    # quaternion = self.json_data["objects"][object]["quaternion"]
+    # quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
+    # quaternion.normalize()
+    
+    # scale = self.json_data["objects"][object]["scale"]
+    # scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
+
+    # transformation = avango.gua.make_trans_mat(translate) \
+    #          * avango.gua.make_rot_mat(quaternion) \
+    #          * avango.gua.make_scale_mat(scale)
+
+
+    node = avango.gua.nodes.TransformNode(Name = name)
+    node.Transform.value = avango.gua.make_identity_mat()
+
+    if (json_transform["root"]):
+      self.root_node.Children.value.append(node)
+    else:
+      self.child_parent_pairs.append( (name, parent) )
+
+
+    return node
+
+
+  def load_light(self, light):
+    # TODO        
+    print("load light" , light)        
+    return "dummy"
+
+  def load_scenegraph(self, scenegraph):
+    # TODO        
+    print("load scenegraph" , scenegraph)        
 
 
   def load_object(self, object):
@@ -51,31 +209,6 @@ class jsonloader:
     node.Transform.value = transformation
 
     self.root_node.Children.value.append(node)
-
-
-  def load_TriMeshGeometry(self, object):
-    print "load geometry ", object
-    translate = self.json_data["objects"][object]["position"]
-    translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
-    
-    quaternion = self.json_data["objects"][object]["quaternion"]
-    quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
-    quaternion.normalize()
-    
-    scale = self.json_data["objects"][object]["scale"]
-    scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
-
-    # transformation = avango.gua.make_trans_mat(translate) \
-             # * avango.gua.make_rot_mat(quaternion) \
-             # * avango.gua.make_scale_mat(scale)
-    transformation = avango.gua.make_identity_mat()
-    
-    geometry = self.TriMeshLoader.create_geometry_from_file( str(object)
-                                 , str(self.json_data["objects"][object]["geometry"])
-                                 , str(self.json_data["objects"][object]["material"])
-                                 , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
-    geometry.Transform.value = transformation
-    self.root_node.Children.value.append(geometry)
 
 
   def load_PointLight(self, object):

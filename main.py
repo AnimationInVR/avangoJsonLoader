@@ -54,27 +54,28 @@ class Reloader(avango.script.Script):
 def start():
 
   # setup scenegraph
-  # graph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
+  graph = avango.gua.nodes.SceneGraph(Name = "SceneGraph")
 
   scene = avango.gua.nodes.TransformNode(Name = "scene")
   scene.Transform.value = avango.gua.make_identity_mat()
 
-  # light = avango.gua.nodes.PointLightNode(
-  #               Name = "light",
-  #               Color = avango.gua.Color(1.0, 1.0, 1.0),
-  #               EnableShadows = True,
-  #               Brightness = 30.0)
+  light = avango.gua.nodes.PointLightNode(
+                Name = "light",
+                Color = avango.gua.Color(1.0, 1.0, 1.0),
+                EnableShadows = True,
+                Brightness = 30.0)
 
-  # light.Transform.value = avango.gua.make_trans_mat(1, 5, 4) * avango.gua.make_scale_mat(35, 35, 35)
+  light.Transform.value = avango.gua.make_trans_mat(1, 5, 4) * avango.gua.make_scale_mat(35, 35, 35)
 
   # graph.Root.value.Children.value = [screen, scene]
 
 
   reloader = Reloader()
+
   reloader.myConstructor("blabla.json", scene)
 
   window = reloader.get_window("Window")
-  graph = reloader.get_scenegraph("SceneGraph")
+  # graph = reloader.get_scenegraph("SceneGraph")
 
   # setup viewing
   size = avango.gua.Vec2ui(1920, 1080)
@@ -98,10 +99,7 @@ def start():
   cam.Children.value = [screen]
   cam.Transform.value = avango.gua.make_trans_mat(0.0, 2.0, 5.0)
 
-  # graph.Root.value.Children.value = [cam, scene, light]
-  graph.Root.value.Children.value.append( cam )
-
-
+  graph.Root.value.Children.value = [cam, scene, light]
 
   avango.gua.register_window("window", window)
 
@@ -122,7 +120,6 @@ def start():
 
   guaVE = GuaVE()
   guaVE.start(locals(), globals(), show_banner = False)
-
   viewer.run()
 
 

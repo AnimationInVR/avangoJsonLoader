@@ -95,6 +95,13 @@ class jsonloader:
   def second_parse(self):
     self.create_scenegraph_structure() 
 
+    for camera in self.json_data["cameras"]:
+      self.load_camera_finish(camera)
+
+    for viewer in self.json_data["viewer"]:
+      self.load_viewer_finish(viewer)
+
+      
 
   def create_scenegraph_structure(self):
     for pair in self.child_parent_pairs:
@@ -119,7 +126,7 @@ class jsonloader:
     self.child_parent_pairs.append( (name, parent) )
 
     return screen
-    
+
 
   def load_window(self, window):
     print("load window" , window)   
@@ -138,9 +145,12 @@ class jsonloader:
 
     display = str(json_window["display"])
 
-    new_window = avango.gua.nodes.Window(Name = name, Size = size, LeftResolution = size,
+    new_window = avango.gua.nodes.GlfwWindow(Name = name, Size = size, LeftResolution = size,
                   StereoMode = mode, Title = title, Display = display)
     
+    avango.gua.register_window(name, new_window)
+
+
     return new_window 
 
 
@@ -187,14 +197,26 @@ class jsonloader:
 
 
     cam = avango.gua.nodes.CameraNode(Name = name,
-                                      # LeftScreenPath = "/cam/screen",
-                                      # SceneGraph = "scenegraph",
+                                      # LeftScreenPath = "",
+                                      SceneGraph = "scenegraph",
                                       Resolution = resolution,
                                       OutputWindowName = output_window,
                                       Transform = transform)
     self.child_parent_pairs.append( (name, parent) )
     
     return cam 
+
+  def load_camera_finish(self, camera):
+    print("load camera" , camera)        
+
+    json_camera = self.json_data["cameras"][camera]
+
+    name = str(json_camera["name"])
+    left_screen = str(json_camera["left_screen_path"])
+
+    cam = self.scene_graph_nodes[name]
+    screen = self.scene_graph_nodes[left_screen]
+    cam.LeftScreenPath.value = screen.Path.value
 
 
   def load_transform(self, transform):       
@@ -254,18 +276,23 @@ class jsonloader:
     print("load viewer" , viewer)
 
     json_viewer = self.json_data["viewer"][viewer]
+    name = json_viewer["name"]
+    viewer = avango.gua.nodes.Viewer(Name = name)
+
+    return viewer 
+
+  def load_viewer_finish(self, viewer):
+    print("load viewer" , viewer)
+
+    json_viewer = self.json_data["viewer"][viewer]
 
     name = json_viewer["name"]
+    
+    viewer = self.viewer[name]
 
-    #TODO correct this
-    window_string = json_viewer["window"]
-    scenegraph_string = json_viewer["camera"]  #TODO correct this
-    camera_string = json_viewer["scenegraph"]  #TODO correct this
-
-    viewer = avango.gua.nodes.Viewer()
-
-    return viewer       
-
+    viewer.Window.value = self.windows[json_viewer["window"]]
+    viewer.SceneGraphs.value = [ self.scenegraphs[json_viewer["camera"]] ]
+    viewer.CameraNodes.value = [ self.scene_graph_nodes[json_viewer["scenegraph"]] ]
 
 
   def load_and_set_PipelineOptions(self, pipe):

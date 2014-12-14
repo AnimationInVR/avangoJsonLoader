@@ -80,8 +80,8 @@ def start():
     LeftResolution = size
   )
 
-  pipe_desc = avango.gua.nodes.PipelineDescription()
-  pipe_desc.add_tri_mesh_pass()
+  # pipe_desc = avango.gua.nodes.PipelineDescription()
+  # pipe_desc.add_tri_mesh_pass()
 
   cam = avango.gua.nodes.CameraNode(Name = "cam",
                                     LeftScreenPath = "/cam/screen",

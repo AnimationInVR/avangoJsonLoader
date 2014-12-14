@@ -56,48 +56,59 @@ def start():
   scene = avango.gua.nodes.TransformNode(Name = "scene")
   scene.Transform.value = avango.gua.make_identity_mat()
 
-  eye = avango.gua.nodes.TransformNode(Name = "eye")
-  eye.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, 3.5)
+  light = avango.gua.nodes.PointLightNode(
+                Name = "light",
+                Color = avango.gua.Color(1.0, 1.0, 1.0),
+                Brightness = 50.0)
+  light.Transform.value = avango.gua.make_trans_mat(1, 1, 5) * avango.gua.make_scale_mat(15, 15, 15)
 
-  screen = avango.gua.nodes.ScreenNode(Name = "screen", Width = 4, Height = 3)
-  screen.Transform.value = avango.gua.make_trans_mat(0.0, 1.0, 1.0)
-  screen.Children.value = [eye]
-
-  sun = avango.gua.nodes.SunLightNode()
-  sun.Transform.value = avango.gua.make_rot_mat(-70, 1.0, -0.3, 0.0)
-  
-  sun2 = avango.gua.nodes.SunLightNode()
-  sun2.Transform.value = avango.gua.make_rot_mat(-60, 1.0, 0.3, 0.0)
-
-  graph.Root.value.Children.value = [screen, scene, sun, sun2]
   # graph.Root.value.Children.value = [screen, scene]
 
 
   reloader = Reloader()
   reloader.myConstructor("blabla.json", scene)
 
-  window = reloader.get_window()
+  # window = reloader.get_window()
 
   # setup viewing
   size = avango.gua.Vec2ui(1920, 1080)
-  pipe = avango.gua.nodes.Pipeline(Camera = avango.gua.nodes.Camera(LeftEye = "/screen/eye",
-                                                                    RightEye = "/screen/eye",
-                                                                    LeftScreen = "/screen",
-                                                                    RightScreen = "/screen",
-                                                                    SceneGraph = "scenegraph"),
-                                   Window = window,
-                                   LeftResolution = size)
+
+  window = avango.gua.nodes.GlfwWindow(
+    Size = size,
+    LeftResolution = size
+  )
+
+  pipe_desc = avango.gua.nodes.PipelineDescription()
+  pipe_desc.add_tri_mesh_pass()
+
+  cam = avango.gua.nodes.CameraNode(Name = "cam",
+                                    LeftScreenPath = "/cam/screen",
+                                    SceneGraph = "scenegraph",
+                                    Resolution = size,
+                                    OutputWindowName = "window") 
+
+  screen = avango.gua.nodes.ScreenNode(Name = "screen", Width = 4, Height = 3)
+  screen.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, -2.5)
+  cam.Children.value = [screen]
+  cam.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, 5.0)
+
+
+
+  graph.Root.value.Children.value = [cam, scene, light]
+
+  avango.gua.register_window("window", window)
 
   #setup viewer
   viewer = avango.gua.nodes.Viewer()
-  viewer.Pipelines.value = [pipe]
+  viewer.CameraNodes.value = [cam]
   viewer.SceneGraphs.value = [graph]
+  viewer.Window.value = window
 
   navigator = examples_common.navigator.Navigator()
-  navigator.StartLocation.value = screen.Transform.value.get_translate()
-  navigator.OutTransform.connect_from(screen.Transform)
+  navigator.StartLocation.value = cam.Transform.value.get_translate()
+  navigator.OutTransform.connect_from(cam.Transform)
 
-  screen.Transform.connect_from(navigator.OutTransform)
+  cam.Transform.connect_from(navigator.OutTransform)
 
   navigator.RotationSpeed.value = 0.2
   navigator.MotionSpeed.value = 0.04

@@ -132,8 +132,13 @@ class jsonloader:
 
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
-                                 , "data/materials/White.gmd"
-                                 , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
+                                 , avango.gua.create_default_material()
+                                 , 0)
+    
+    geometry.Material.value.set_uniform("Color", avango.gua.Vec4(1.0, 0.766, 0.336, 1.0))
+    geometry.Material.value.set_uniform("Roughness", 0.3)
+    geometry.Material.value.set_uniform("Metalness", 1.0)
+    
     geometry.Transform.value = transform
 
     self.child_parent_pairs.append( (name, parent) )
@@ -283,7 +288,7 @@ def load_transform_matrix(matrix_list):
   transform = avango.gua.make_identity_mat()
 
   for element in range(len(matrix_list)):
-    transform.set_element(element/4, element%4 ,matrix_list[element])
+    transform.set_element(int(element/4), element%4 ,matrix_list[element])
 
   return switch_coordinate_systems(transform)
 

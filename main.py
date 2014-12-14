@@ -87,8 +87,6 @@ def start():
                                                                     SceneGraph = "scenegraph"),
                                    Window = window,
                                    LeftResolution = size)
-  pipe.EnableBackfaceCulling.value = False 
-  pipe.EnableBBoxDisplay.value = True
 
   #setup viewer
   viewer = avango.gua.nodes.Viewer()
@@ -105,7 +103,7 @@ def start():
   navigator.MotionSpeed.value = 0.04
 
   guaVE = GuaVE()
-  guaVE.start(locals(), globals())
+  guaVE.start(locals(), globals(), show_banner = False)
 
   viewer.run()
 

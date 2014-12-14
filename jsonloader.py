@@ -116,7 +116,8 @@ class jsonloader:
     name = str(json_screen["name"])
     parent = str(json_screen["parent"])
 
-    transform = load_transform_matrix( json_screen["transform"] )
+    # transform = load_transform_matrix( json_screen["transform"] )
+    transform = avango.gua.make_trans_mat(0.0, 2.0, 2.5)
 
     # TODO load hight and width
 
@@ -187,8 +188,9 @@ class jsonloader:
     name = str(json_camera["name"])
     parent = str(json_camera["parent"])
 
-    left_screen = str(json_camera["left_screen_path"])
-    transform = load_transform_matrix( json_camera["transform"] )
+    # transform = load_transform_matrix( json_camera["transform"] )
+    transform = avango.gua.make_trans_mat(0.0, 2.0, 5.0)
+
     scenegraph = str(json_camera["scenegraph"])
 
     resolution = avango.gua.Vec2ui(json_camera["resolution"][0], json_camera["resolution"][1] )
@@ -198,7 +200,7 @@ class jsonloader:
 
     cam = avango.gua.nodes.CameraNode(Name = name,
                                       # LeftScreenPath = "",
-                                      SceneGraph = "scenegraph",
+                                      SceneGraph = scenegraph,
                                       Resolution = resolution,
                                       OutputWindowName = output_window,
                                       Transform = transform)
@@ -216,7 +218,13 @@ class jsonloader:
 
     cam = self.scene_graph_nodes[name]
     screen = self.scene_graph_nodes[left_screen]
-    cam.LeftScreenPath.value = screen.Path.value
+    
+    sep = '/'
+    path = screen.Path.value
+    path_parts = path.split(sep)
+    path_parts.pop(0)
+    path = sep.join(path_parts)
+    cam.LeftScreenPath.value = path
 
 
   def load_transform(self, transform):       
@@ -295,6 +303,25 @@ class jsonloader:
     viewer.CameraNodes.value = [ self.scene_graph_nodes[json_viewer["scenegraph"]] ]
 
 
+    light = avango.gua.nodes.PointLightNode(
+                  Name = "light",
+                  Color = avango.gua.Color(1.0, 1.0, 1.0),
+                  EnableShadows = True,
+                  Brightness = 30.0)
+
+    light.Transform.value = avango.gua.make_trans_mat(1, 5, 4) * avango.gua.make_scale_mat(35, 35, 35)
+
+    self.scenegraphs[json_viewer["camera"]].Root.value.Children.value.append(light)
+
+    print("start test rendering")
+    print("")
+    printscenegraph(self.scenegraphs[json_viewer["camera"]])
+    print("")
+    print(viewer.CameraNodes.value[0].LeftScreenPath.value)
+    viewer.run()
+    print("end test rendering")
+
+
   def load_and_set_PipelineOptions(self, pipe):
     # GENERAL
     pipe.EnablePreviewDisplay.value   = self.json_data["pipeline_options"]["enable_preview_display"]
@@ -365,3 +392,25 @@ def switch_coordinate_systems(mat):
           *avango.gua.make_rot_mat(90, 1.0, 0.0, 0.0) \
           *avango.gua.make_scale_mat(1.0, 1.0, -1.0)
 
+
+
+def printscenegraph(scenegraph):
+  for node in scenegraph.Root.value.Children.value:
+    printhelper(node)
+
+def printhelper(node):
+  stack = []
+  stack.append((node,0))
+
+  while stack:
+    tmp = stack.pop()
+    printelement(tmp)
+    for child in tmp[0].Children.value:
+      stack.append((child,tmp[1]+1))
+
+def printelement(nodetupel):
+  for i in range(0, nodetupel[1]):
+    print(" ", end=""),
+  print(nodetupel[0].Name.value + "   ")
+  #print nodetupel[0]
+  #print nodetupel[0].Transform.value

@@ -32,8 +32,11 @@ class Reloader(avango.script.Script):
     # self.pipe = pipe
     self.reload()    
 
-  def get_window(self):
-    return self.loader.windows[0]
+  def get_window(self, window_str):
+    return self.loader.windows[window_str]
+
+  def get_scenegraph(self, sg_str):
+    return self.loader.scenegraphs[sg_str]
 
   def reload(self):
     self.root.Children.value = []
@@ -51,18 +54,18 @@ class Reloader(avango.script.Script):
 def start():
 
   # setup scenegraph
-  graph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
+  # graph = avango.gua.nodes.SceneGraph(Name = "scenegraph")
 
   scene = avango.gua.nodes.TransformNode(Name = "scene")
   scene.Transform.value = avango.gua.make_identity_mat()
 
-  light = avango.gua.nodes.PointLightNode(
-                Name = "light",
-                Color = avango.gua.Color(1.0, 1.0, 1.0),
-                EnableShadows = True,
-                Brightness = 30.0)
+  # light = avango.gua.nodes.PointLightNode(
+  #               Name = "light",
+  #               Color = avango.gua.Color(1.0, 1.0, 1.0),
+  #               EnableShadows = True,
+  #               Brightness = 30.0)
 
-  light.Transform.value = avango.gua.make_trans_mat(1, 5, 4) * avango.gua.make_scale_mat(35, 35, 35)
+  # light.Transform.value = avango.gua.make_trans_mat(1, 5, 4) * avango.gua.make_scale_mat(35, 35, 35)
 
   # graph.Root.value.Children.value = [screen, scene]
 
@@ -70,33 +73,35 @@ def start():
   reloader = Reloader()
   reloader.myConstructor("blabla.json", scene)
 
-  # window = reloader.get_window()
+  window = reloader.get_window("Window")
+  graph = reloader.get_scenegraph("SceneGraph")
 
   # setup viewing
   size = avango.gua.Vec2ui(1920, 1080)
 
-  window = avango.gua.nodes.GlfwWindow(
-    Size = size,
-    LeftResolution = size
-  )
+  # window = avango.gua.nodes.GlfwWindow(
+    # Size = size,
+    # LeftResolution = size
+  # )
 
   # pipe_desc = avango.gua.nodes.PipelineDescription()
   # pipe_desc.add_tri_mesh_pass()
 
   cam = avango.gua.nodes.CameraNode(Name = "cam",
                                     LeftScreenPath = "/cam/screen",
-                                    SceneGraph = "scenegraph",
+                                    SceneGraph = "SceneGraph",
                                     Resolution = size,
-                                    OutputWindowName = "window") 
+                                    OutputWindowName = "Window") 
 
   screen = avango.gua.nodes.ScreenNode(Name = "screen", Width = 4, Height = 3)
   screen.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, -2.5)
   cam.Children.value = [screen]
   cam.Transform.value = avango.gua.make_trans_mat(0.0, 2.0, 5.0)
 
+  # graph.Root.value.Children.value = [cam, scene, light]
+  graph.Root.value.Children.value.append( cam )
 
 
-  graph.Root.value.Children.value = [cam, scene, light]
 
   avango.gua.register_window("window", window)
 

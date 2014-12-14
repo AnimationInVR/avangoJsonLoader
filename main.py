@@ -6,6 +6,8 @@ from examples_common.GuaVE import GuaVE
 from avango.script import field_has_changed
 import avango.gua
 
+
+import examples_common.navigator
 from examples_common import device
 
 import jsonloader
@@ -58,11 +60,16 @@ def start():
   eye.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, 3.5)
 
   screen = avango.gua.nodes.ScreenNode(Name = "screen", Width = 4, Height = 3)
+  screen.Transform.value = avango.gua.make_trans_mat(0.0, 1.0, 1.0)
   screen.Children.value = [eye]
 
   sun = avango.gua.nodes.SunLightNode()
+  sun.Transform.value = avango.gua.make_rot_mat(-70, 1.0, -0.3, 0.0)
+  
+  sun2 = avango.gua.nodes.SunLightNode()
+  sun2.Transform.value = avango.gua.make_rot_mat(-60, 1.0, 0.3, 0.0)
 
-  graph.Root.value.Children.value = [screen, scene, sun]
+  graph.Root.value.Children.value = [screen, scene, sun, sun2]
 
 
   reloader = Reloader()
@@ -86,6 +93,14 @@ def start():
   viewer.Pipelines.value = [pipe]
   viewer.SceneGraphs.value = [graph]
 
+  navigator = examples_common.navigator.Navigator()
+  navigator.StartLocation.value = screen.Transform.value.get_translate()
+  navigator.OutTransform.connect_from(screen.Transform)
+
+  screen.Transform.connect_from(navigator.OutTransform)
+
+  navigator.RotationSpeed.value = 0.2
+  navigator.MotionSpeed.value = 0.04
 
   guaVE = GuaVE()
   guaVE.start(locals(), globals())

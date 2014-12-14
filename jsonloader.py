@@ -51,8 +51,9 @@ class jsonloader:
 
   def create_scenegraph_structure(self):
     for pair in self.child_parent_pairs:
-      self.scene_graph_nodes[pair[1]].Children.value.append(self.scene_graph_nodes[pair[0]])
-
+      # self.scene_graph_nodes[pair[1]].Children.value.append(self.scene_graph_nodes[pair[0]])
+      self.root_node.Children.value.append(self.scene_graph_nodes[pair[0]])
+      
   def load_viewer(self, viewer):
     print("load viewer" , viewer)
     # TODO        
@@ -67,17 +68,17 @@ class jsonloader:
 
     json_window = self.json_data["windows"][window]
 
+    title = str( json_window["title"] )
     name = str(json_window["name"])
-    size = avango.gua.Vec2ui(json_window["width"], 
-                             json_window["height"] )
-    title = str( json_window["title_field"] )
+    size = avango.gua.Vec2ui(json_window["left_resolution"][0], 
+                             json_window["left_resolution"][1] )
 
     mode = 0
     if (json_window["mode"] == "MONO"):
       mode = 0
     # TODO more stereo modes
 
-    display = str(json_window["display_field"])
+    display = str(json_window["display"])
 
     new_window = avango.gua.nodes.Window(Name = name, Size = size, LeftResolution = size,
                   StereoMode = mode, Title = title, Display = display)
@@ -110,8 +111,8 @@ class jsonloader:
     transformation = avango.gua.make_identity_mat()
     
     geometry = self.TriMeshLoader.create_geometry_from_file( name
-                                 , str(json_mesh["geometry"])
-                                 , str(json_mesh["material"])
+                                 , str(json_mesh["file"])
+                                 , "data/materials/White.gmd"
                                  , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
     geometry.Transform.value = transformation
 

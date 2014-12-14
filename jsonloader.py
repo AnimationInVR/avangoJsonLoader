@@ -3,6 +3,38 @@ import avango.gua
 
 import json
 
+''' TRANSFORM NODE JSON
+
+    "transforms": {
+        "Av_root": {
+            "type" : "Transform",
+            "parent" : "null",
+            "transform": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "name" : "Av_root"
+        }
+    },
+
+'''
+
+
+
 # json Loader Class
 class jsonloader:
 
@@ -10,17 +42,19 @@ class jsonloader:
     self.json_data = None
     self.root_node = None
     self.TriMeshLoader = avango.gua.nodes.TriMeshLoader()
+
     self.windows = []
+    
     self.scene_graph_nodes = {}
     self.child_parent_pairs =[]
+
+    self.scenegraphs = []
+    self.viewer = []
 
   def load_json(self, path, root_node):
     json_file = open(path)
     self.json_data = json.load(json_file)
     self.root_node = root_node
-
-    for viewer in self.json_data["viewer"]:
-      self.load_viewer(viewer)
 
     for screen in self.json_data["screens"]:
       new_screen = self.load_screen(screen)
@@ -38,25 +72,25 @@ class jsonloader:
 
     for transform in self.json_data["transforms"]:
       new_transform = self.load_transform(transform)
-      self.scene_graph_nodes[transform] = new_transform
+      self.scene_graph_nodes[new_transform.Name.value] = new_transform
 
     for light in self.json_data["lights"]:
       new_light = self.load_light(light)
       self.scene_graph_nodes[new_light.Name.value] = new_light
     
     for scenegraph in self.json_data["scenegraphs"]:
-      self.load_scenegraph(scenegraph)
+      self.scenegraphs.append(self.load_scenegraph(scenegraph))
+
+    for viewer in self.json_data["viewer"]:
+      self.viewer.append( self.load_viewer(viewer) )
   
     self.create_scenegraph_structure()  
 
+
   def create_scenegraph_structure(self):
     for pair in self.child_parent_pairs:
-      # self.scene_graph_nodes[pair[1]].Children.value.append(self.scene_graph_nodes[pair[0]])
-      self.root_node.Children.value.append(self.scene_graph_nodes[pair[0]])
-
-  def load_viewer(self, viewer):
-    print("load viewer" , viewer)
-    # TODO        
+      self.scene_graph_nodes[pair[1]].Children.value.append(self.scene_graph_nodes[pair[0]])
+      # self.root_node.Children.value.append(self.scene_graph_nodes[pair[0]])
 
   def load_screen(self, screen):
     print("load screen" , screen)        
@@ -129,12 +163,12 @@ class jsonloader:
     name = str(json_transform["name"])
     parent = str(json_transform["parent"])
 
-    transform = load_transform_matrix( json_mesh["transform"] )
+    transform = load_transform_matrix( json_transform["transform"] )
 
     node = avango.gua.nodes.TransformNode(Name = name)
     node.Transform.value = transform
 
-    if (json_transform["root"]):
+    if (json_transform["parent"] == "null"):
       self.root_node.Children.value.append(node)
     else:
       self.child_parent_pairs.append( (name, parent) )
@@ -161,41 +195,35 @@ class jsonloader:
 
     return light
 
-  def load_scenegraph(self, scenegraph):
-    # TODO        
-    print("load scenegraph" , scenegraph)        
+  def load_scenegraph(self, scenegraph):     
+    print("load scenegraph" , scenegraph)
 
+    json_scenegraph = self.json_data["scenegraphs"][scenegraph]
 
-  def load_object(self, object):
-    if (self.json_data["objects"][object]["type"] == "TriMeshGeometry"):
-      self.load_TriMeshGeometry(object)
-    
-    if (self.json_data["objects"][object]["type"] == "PointLight"):
-      self.load_PointLight(object)
-      
-    if (self.json_data["objects"][object]["type"] == "Empty"):
-      self.load_TransformNode(object)
+    name = str(json_scenegraph["name"])
+    root = str(json_scenegraph["root"])
 
-  def load_TransformNode(self, object):
-    print "load Transformnode ", object
-    translate = self.json_data["objects"][object]["position"]
-    translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
-    
-    quaternion = self.json_data["objects"][object]["quaternion"]
-    quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
-    quaternion.normalize()
-    
-    scale = self.json_data["objects"][object]["scale"]
-    scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
+    graph = avango.gua.nodes.SceneGraph(Name = name)
+    graph.Root.value = self.scene_graph_nodes[root]
 
-    transformation = avango.gua.make_trans_mat(translate) \
-             * avango.gua.make_rot_mat(quaternion) \
-             * avango.gua.make_scale_mat(scale)
+    return graph
 
-    node = avango.gua.nodes.TransformNode(Name = str(object))
-    node.Transform.value = transformation
+  def load_viewer(self, viewer):
+    print("load viewer" , viewer)
 
-    self.root_node.Children.value.append(node)
+    json_viewer = self.json_data["viewer"][viewer]
+
+    name = json_viewer["name"]
+
+    #TODO correct this
+    window_string = json_viewer["window"]
+    scenegraph_string = json_viewer["camera"]  #TODO correct this
+    camera_string = json_viewer["scenegraph"]  #TODO correct this
+
+    viewer = avango.gua.nodes.Viewer()
+
+    return viewer       
+
 
 
   def load_and_set_PipelineOptions(self, pipe):

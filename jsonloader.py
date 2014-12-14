@@ -103,8 +103,23 @@ class jsonloader:
 
   def load_screen(self, screen):
     print("load screen" , screen)        
-    return "dummy"
-    # TODO        
+    
+    json_screen = self.json_data["screens"][screen]
+
+    name = str(json_screen["name"])
+    parent = str(json_screen["parent"])
+
+    transform = load_transform_matrix( json_screen["transform"] )
+
+    # TODO load hight and width
+
+    screen = avango.gua.nodes.ScreenNode(Name = name, Width = 4, Height = 3)
+    screen.Transform.value = transform
+
+    self.child_parent_pairs.append( (name, parent) )
+
+    return screen
+    
 
   def load_window(self, window):
     print("load window" , window)   

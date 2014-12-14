@@ -43,32 +43,33 @@ class jsonloader:
     self.root_node = None
     self.TriMeshLoader = avango.gua.nodes.TriMeshLoader()
 
-    self.windows = []
-    
+    self.windows = {}
+
     self.scene_graph_nodes = {}
     self.child_parent_pairs =[]
 
-    self.scenegraphs = []
-    self.viewer = []
+    self.scenegraphs = {}
+    self.viewer = {}
 
   def load_json(self, path, root_node):
     json_file = open(path)
     self.json_data = json.load(json_file)
     self.root_node = root_node
+    self.first_parse()
+    self.second_parse()
 
+  def first_parse(self):
     for screen in self.json_data["screens"]:
       new_screen = self.load_screen(screen)
       self.scene_graph_nodes[screen] = new_screen
-
-    for window in self.json_data["windows"]:
-      self.windows.append( self.load_window(window) )
 
     for mesh in self.json_data["meshes"]:
       new_mesh = self.load_mesh(mesh)
       self.scene_graph_nodes[new_mesh.Name.value] = new_mesh
 
     for camera in self.json_data["cameras"]:
-      self.load_camera(camera)
+      new_camera = self.load_camera(camera)
+      self.scene_graph_nodes[new_camera.Name.value] = new_camera
 
     for transform in self.json_data["transforms"]:
       new_transform = self.load_transform(transform)
@@ -77,14 +78,22 @@ class jsonloader:
     for light in self.json_data["lights"]:
       new_light = self.load_light(light)
       self.scene_graph_nodes[new_light.Name.value] = new_light
+
+    for window in self.json_data["windows"]:
+      new_window = self.load_window(window)
+      self.windows[new_window.Name.value] = new_window
     
     for scenegraph in self.json_data["scenegraphs"]:
-      self.scenegraphs.append(self.load_scenegraph(scenegraph))
+      new_scenegraph = self.load_scenegraph(scenegraph)
+      self.scenegraphs[new_scenegraph.Name.value] = new_scenegraph
 
     for viewer in self.json_data["viewer"]:
-      self.viewer.append( self.load_viewer(viewer) )
-  
-    self.create_scenegraph_structure()  
+      new_viewer = self.load_viewer(viewer)
+      self.viewer[new_viewer.Name.value] = new_viewer
+
+
+  def second_parse(self):
+    self.create_scenegraph_structure() 
 
 
   def create_scenegraph_structure(self):
@@ -151,13 +160,26 @@ class jsonloader:
     json_camera = self.json_data["cameras"][camera]
 
     name = str(json_camera["name"])
+    parent = str(json_camera["parent"])
+
+    left_screen = str(json_camera["left_screen_path"])
+    transform = load_transform_matrix( json_camera["transform"] )
+    scenegraph = str(json_camera["scenegraph"])
+
     resolution = avango.gua.Vec2ui(json_camera["resolution"][0], json_camera["resolution"][1] )
 
-    # TODO new camera layout
-    # new_camera = avango.gua.nodes.Camera(Name = name, LeftResolution = size,
-                  # StereoMode = mode, Title = title, Display = display)
+    output_window = str(json_camera["output_window_name"])
+
+
+    cam = avango.gua.nodes.CameraNode(Name = name,
+                                      # LeftScreenPath = "/cam/screen",
+                                      # SceneGraph = "scenegraph",
+                                      Resolution = resolution,
+                                      OutputWindowName = output_window,
+                                      Transform = transform)
+    self.child_parent_pairs.append( (name, parent) )
     
-    # return new_camera 
+    return cam 
 
 
   def load_transform(self, transform):       

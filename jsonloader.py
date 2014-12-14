@@ -42,7 +42,7 @@ class jsonloader:
 
     for light in self.json_data["lights"]:
       new_light = self.load_light(light)
-      self.scene_graph_nodes[light] = new_light
+      self.scene_graph_nodes[new_light.Name.value] = new_light
     
     for scenegraph in self.json_data["scenegraphs"]:
       self.load_scenegraph(scenegraph)
@@ -53,7 +53,7 @@ class jsonloader:
     for pair in self.child_parent_pairs:
       # self.scene_graph_nodes[pair[1]].Children.value.append(self.scene_graph_nodes[pair[0]])
       self.root_node.Children.value.append(self.scene_graph_nodes[pair[0]])
-      
+
   def load_viewer(self, viewer):
     print("load viewer" , viewer)
     # TODO        
@@ -94,27 +94,13 @@ class jsonloader:
     name = str(json_mesh["name"])
     parent = str(json_mesh["parent"])
 
-    # translate = self.json_data["objects"][object]["position"]
-    # translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
-    
-    # quaternion = self.json_data["objects"][object]["quaternion"]
-    # quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
-    # quaternion.normalize()
-    
-    # scale = self.json_data["objects"][object]["scale"]
-    # scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
+    transform = load_transform_matrix( json_mesh["transform"] )
 
-    # transformation = avango.gua.make_trans_mat(translate) \
-             # * avango.gua.make_rot_mat(quaternion) \
-             # * avango.gua.make_scale_mat(scale)
-
-    transformation = avango.gua.make_identity_mat()
-    
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
                                  , "data/materials/White.gmd"
                                  , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
-    geometry.Transform.value = transformation
+    geometry.Transform.value = transform
 
     self.child_parent_pairs.append( (name, parent) )
     
@@ -143,23 +129,10 @@ class jsonloader:
     name = str(json_transform["name"])
     parent = str(json_transform["parent"])
 
-    # translate = self.json_data["objects"][object]["position"]
-    # translate = avango.gua.Vec3(translate[0], translate[1], translate[2])
-    
-    # quaternion = self.json_data["objects"][object]["quaternion"]
-    # quaternion = avango.gua.Quat(quaternion[0], quaternion[1], quaternion[2], quaternion[3])
-    # quaternion.normalize()
-    
-    # scale = self.json_data["objects"][object]["scale"]
-    # scale = avango.gua.Vec3(scale[0], scale[1], scale[2])
-
-    # transformation = avango.gua.make_trans_mat(translate) \
-    #          * avango.gua.make_rot_mat(quaternion) \
-    #          * avango.gua.make_scale_mat(scale)
-
+    transform = load_transform_matrix( json_mesh["transform"] )
 
     node = avango.gua.nodes.TransformNode(Name = name)
-    node.Transform.value = avango.gua.make_identity_mat()
+    node.Transform.value = transform
 
     if (json_transform["root"]):
       self.root_node.Children.value.append(node)
@@ -170,10 +143,23 @@ class jsonloader:
     return node
 
 
-  def load_light(self, light):
-    # TODO        
-    print("load light" , light)        
-    return "dummy"
+  def load_light(self, light):      
+    print("load light" , light)   
+
+    json_light = self.json_data["lights"][light]
+
+    name = str(json_light["name"])
+    parent = str(json_light["parent"])
+
+
+    transform = load_transform_matrix( json_light["transform"] )
+    color = avango.gua.Color(json_light["color"][0], json_light["color"][1], json_light["color"][2])
+
+    light = avango.gua.nodes.PointLightNode(Name = name, Transform = transform, Color = color, EnableShadows = True)
+
+    self.child_parent_pairs.append( (name, parent) )
+
+    return light
 
   def load_scenegraph(self, scenegraph):
     # TODO        
@@ -210,30 +196,6 @@ class jsonloader:
     node.Transform.value = transformation
 
     self.root_node.Children.value.append(node)
-
-
-  def load_PointLight(self, object):
-    print "load light ", object
-    translate = self.json_data["objects"][object]["position"] 
-    translate = avango.gua.Vec3(translate[0], translate[1], -translate[2])
-
-    scale = self.json_data["objects"][object]["distance"] * 2.0
-
-    transformation = avango.gua.make_trans_mat(translate) \
-             * avango.gua.make_scale_mat(scale)
-    
-    color_hexstring = str(hex(self.json_data["objects"][object]["color"]))
-    red = float(int(color_hexstring[2]+color_hexstring[3],16)) /255
-    green = float(int(color_hexstring[4]+color_hexstring[5],16)) /255
-    blue = float(int(color_hexstring[6]+color_hexstring[7],16)) /255
-
-    
-    light = avango.gua.nodes.PointLightNode( Name = str(object)
-                         , Color = avango.gua.Color(red, green, blue) )
-    light.Transform.value = transformation
-    light.EnableShadows.value = True
-
-    self.root_node.Children.value.append(light)
 
 
   def load_and_set_PipelineOptions(self, pipe):
@@ -287,3 +249,22 @@ class jsonloader:
     # HDR
     pipe.EnableHDR.value = self.json_data["pipeline_options"]["hdr_settings"]["enable"]
     pipe.HDRKey.value    = self.json_data["pipeline_options"]["hdr_settings"]["key"]
+
+
+def load_transform_matrix(matrix_list):
+  transform = avango.gua.make_identity_mat()
+
+  for element in range(len(matrix_list)):
+    transform.set_element(element/4, element%4 ,matrix_list[element])
+
+  return switch_coordinate_systems(transform)
+
+
+def switch_coordinate_systems(mat):
+
+  return  avango.gua.make_scale_mat(1.0, 1.0, -1.0) \
+          *avango.gua.make_rot_mat(-90, 1.0, 0.0, 0.0) \
+          *mat \
+          *avango.gua.make_rot_mat(90, 1.0, 0.0, 0.0) \
+          *avango.gua.make_scale_mat(1.0, 1.0, -1.0)
+

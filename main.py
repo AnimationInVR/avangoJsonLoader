@@ -70,6 +70,7 @@ def start():
   sun2.Transform.value = avango.gua.make_rot_mat(-60, 1.0, 0.3, 0.0)
 
   graph.Root.value.Children.value = [screen, scene, sun, sun2]
+  # graph.Root.value.Children.value = [screen, scene]
 
 
   reloader = Reloader()
@@ -86,7 +87,8 @@ def start():
                                                                     SceneGraph = "scenegraph"),
                                    Window = window,
                                    LeftResolution = size)
-
+  pipe.EnableBackfaceCulling.value = False 
+  pipe.EnableBBoxDisplay.value = True
 
   #setup viewer
   viewer = avango.gua.nodes.Viewer()

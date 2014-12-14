@@ -60,13 +60,10 @@ def start():
   screen = avango.gua.nodes.ScreenNode(Name = "screen", Width = 4, Height = 3)
   screen.Children.value = [eye]
 
-  loader = avango.gua.nodes.TriMeshLoader()
-  test = self.TriMeshLoader.create_geometry_from_file( name
-                                 , "data/objects/Frog.obj"
-                                 , "data/materials/White.gmd"
-                                 , avango.gua.LoaderFlags.DEFAULTS | avango.gua.LoaderFlags.LOAD_MATERIALS)
+  sun = avango.gua.nodes.SunLightNode()
 
-  graph.Root.value.Children.value = [screen, scene, test]
+  graph.Root.value.Children.value = [screen, scene, sun]
+
 
   reloader = Reloader()
   reloader.myConstructor("blabla.json", scene)
@@ -74,7 +71,7 @@ def start():
   window = reloader.get_window()
 
   # setup viewing
-  size = avango.gua.Vec2ui(1024, 768)
+  size = avango.gua.Vec2ui(1920, 1080)
   pipe = avango.gua.nodes.Pipeline(Camera = avango.gua.nodes.Camera(LeftEye = "/screen/eye",
                                                                     RightEye = "/screen/eye",
                                                                     LeftScreen = "/screen",
@@ -82,7 +79,6 @@ def start():
                                                                     SceneGraph = "scenegraph"),
                                    Window = window,
                                    LeftResolution = size)
-
 
 
   #setup viewer

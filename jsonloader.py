@@ -134,10 +134,10 @@ class jsonloader:
                                  , str(json_mesh["file"])
                                  , avango.gua.create_default_material()
                                  , 0)
-    
+
     geometry.Material.value.set_uniform("Color", avango.gua.Vec4(1.0, 0.766, 0.336, 1.0))
-    geometry.Material.value.set_uniform("Roughness", 0.3)
-    geometry.Material.value.set_uniform("Metalness", 1.0)
+    geometry.Material.value.set_uniform("Roughness", 0.4)
+    geometry.Material.value.set_uniform("Metalness", 0.8)
     
     geometry.Transform.value = transform
 

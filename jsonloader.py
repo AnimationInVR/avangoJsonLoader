@@ -165,14 +165,16 @@ class jsonloader:
 
     transform = load_transform_matrix( json_mesh["transform"] )
 
+    default_material = avango.gua.create_default_material()
+    default_material.set_uniform("Color", avango.gua.Vec4(0.4, 0.3, 0.3, 1.0))
+    default_material.set_uniform("Roughness", 0.4)
+    default_material.set_uniform("Metalness", 0.8)
+
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
-                                 , avango.gua.create_default_material()
-                                 , 0)
+                                 , default_material
+                                 , avango.gua.LoaderFlags.LOAD_MATERIALS)
 
-    geometry.Material.value.set_uniform("Color", avango.gua.Vec4(1.0, 0.766, 0.336, 1.0))
-    geometry.Material.value.set_uniform("Roughness", 0.4)
-    geometry.Material.value.set_uniform("Metalness", 0.8)
     
     geometry.Transform.value = transform
 
@@ -259,9 +261,15 @@ class jsonloader:
 
 
     transform = load_transform_matrix( json_light["transform"] )
+
+    distance = json_light["distance"]
+    transform = transform * avango.gua.make_scale_mat(distance)
+
     color = avango.gua.Color(json_light["color"][0], json_light["color"][1], json_light["color"][2])
 
-    light = avango.gua.nodes.PointLightNode(Name = name, Transform = transform, Color = color, EnableShadows = True)
+    energy = json_light["energy"]
+
+    light = avango.gua.nodes.PointLightNode(Name = name, Transform = transform, Color = color, EnableShadows = True, Brightness = energy)
 
     self.child_parent_pairs.append( (name, parent) )
 

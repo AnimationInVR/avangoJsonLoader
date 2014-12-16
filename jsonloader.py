@@ -59,6 +59,8 @@ class jsonloader:
     self.second_parse()
 
   def first_parse(self):
+    self.create_root()
+
     for screen in self.json_data["screens"]:
       new_screen = self.load_screen(screen)
       self.scene_graph_nodes[screen] = new_screen
@@ -101,7 +103,15 @@ class jsonloader:
     for viewer in self.json_data["viewer"]:
       self.load_viewer_finish(viewer)
 
-      
+
+  def create_root(self):
+    node = avango.gua.nodes.TransformNode(Name = "Av_root")
+    # Rotate to switch from Blenders to GL coordinate system
+    node.Transform.value = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)
+
+    self.scene_graph_nodes[node.Name.value] = node
+    self.root_node.Children.value.append(node)
+
 
   def create_scenegraph_structure(self):
     for pair in self.child_parent_pairs:
@@ -164,6 +174,8 @@ class jsonloader:
     parent = str(json_mesh["parent"])
 
     transform = load_transform_matrix( json_mesh["transform"] )
+
+    # transform  = avango.gua.make_identity_mat()
 
     default_material = avango.gua.create_default_material()
     default_material.set_uniform("Color", avango.gua.Vec4(0.4, 0.3, 0.3, 1.0))
@@ -370,17 +382,7 @@ def load_transform_matrix(matrix_list):
   for element in range(len(matrix_list)):
     transform.set_element(int(element/4), element%4 ,matrix_list[element])
 
-  return switch_coordinate_systems(transform)
-
-
-def switch_coordinate_systems(mat):
-
-  return  avango.gua.make_scale_mat(1.0, 1.0, -1.0) \
-          *avango.gua.make_rot_mat(-90, 1.0, 0.0, 0.0) \
-          *mat \
-          *avango.gua.make_rot_mat(90, 1.0, 0.0, 0.0) \
-          *avango.gua.make_scale_mat(1.0, 1.0, -1.0)
-
+  return transform
 
 
 def printscenegraph(scenegraph):

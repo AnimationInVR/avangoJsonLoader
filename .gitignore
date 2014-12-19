@@ -1,6 +1,7 @@
 *.pyc
 *~
 data
+tmp
 *.json
 *.obj
 *.mtl

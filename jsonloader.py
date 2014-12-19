@@ -106,7 +106,7 @@ class jsonloader:
 
   def create_root(self):
     node = avango.gua.nodes.TransformNode(Name = "Av_root")
-    # Rotate to switch from Blenders to GL coordinate system
+    # Rotate to switch from Blenders to GL`s coordinate system
     node.Transform.value = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)
 
     self.scene_graph_nodes[node.Name.value] = node
@@ -126,8 +126,7 @@ class jsonloader:
     name = str(json_screen["name"])
     parent = str(json_screen["parent"])
 
-    # transform = load_transform_matrix( json_screen["transform"] )
-    transform = avango.gua.make_trans_mat(0.0, 0.0, -2.5)
+    transform = load_transform_matrix( json_screen["transform"] )
 
     # TODO load hight and width
 
@@ -175,8 +174,6 @@ class jsonloader:
 
     transform = load_transform_matrix( json_mesh["transform"] )
 
-    # transform  = avango.gua.make_identity_mat()
-
     default_material = avango.gua.create_default_material()
     default_material.set_uniform("Color", avango.gua.Vec4(0.4, 0.3, 0.3, 1.0))
     default_material.set_uniform("Roughness", 0.4)
@@ -186,8 +183,7 @@ class jsonloader:
                                  , str(json_mesh["file"])
                                  , default_material
                                  , avango.gua.LoaderFlags.LOAD_MATERIALS)
-
-    
+  
     geometry.Transform.value = transform
 
     self.child_parent_pairs.append( (name, parent) )
@@ -202,8 +198,7 @@ class jsonloader:
     name = str(json_camera["name"])
     parent = str(json_camera["parent"])
 
-    # transform = load_transform_matrix( json_camera["transform"] )
-    transform = avango.gua.make_trans_mat(0.0, 0.0, 5.0)
+    transform = load_transform_matrix( json_camera["transform"] )
 
     scenegraph = str(json_camera["scenegraph"])
 
@@ -281,7 +276,11 @@ class jsonloader:
 
     energy = json_light["energy"]
 
-    light = avango.gua.nodes.PointLightNode(Name = name, Transform = transform, Color = color, EnableShadows = True, Brightness = energy)
+    light = avango.gua.nodes.PointLightNode(Name = name
+                                           ,Transform = transform
+                                           ,Color = color
+                                           ,EnableShadows = True
+                                           ,Brightness = energy * 10)
 
     self.child_parent_pairs.append( (name, parent) )
 

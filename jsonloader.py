@@ -3,38 +3,6 @@ import avango.gua
 
 import json
 
-''' TRANSFORM NODE JSON
-
-    "transforms": {
-        "Av_root": {
-            "type" : "Transform",
-            "parent" : "null",
-            "transform": [
-                1.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                1.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                1.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "name" : "Av_root"
-        }
-    },
-
-'''
-
-
-
 # json Loader Class
 class jsonloader:
 
@@ -382,25 +350,3 @@ def load_transform_matrix(matrix_list):
     transform.set_element(int(element/4), element%4 ,matrix_list[element])
 
   return transform
-
-
-def printscenegraph(scenegraph):
-  for node in scenegraph.Root.value.Children.value:
-    printhelper(node)
-
-def printhelper(node):
-  stack = []
-  stack.append((node,0))
-
-  while stack:
-    tmp = stack.pop()
-    printelement(tmp)
-    for child in tmp[0].Children.value:
-      stack.append((child,tmp[1]+1))
-
-def printelement(nodetupel):
-  for i in range(0, nodetupel[1]):
-    print(" ", end=""),
-  print(nodetupel[0].Name.value + "   ")
-  #print nodetupel[0]
-  #print nodetupel[0].Transform.value

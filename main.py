@@ -1,17 +1,17 @@
 #!/usr/bin/python
 
-import avango
-import avango.script
-from examples_common.GuaVE import GuaVE
-from avango.script import field_has_changed
-import avango.gua
+import sys
 
+import avango
+import avango.gua
+import avango.script
+from avango.script import field_has_changed
 
 import examples_common.navigator
+from examples_common.GuaVE import GuaVE
 from examples_common import device
 
 import jsonloader
-
 
 class Reloader(avango.script.Script):
 
@@ -52,6 +52,11 @@ class Reloader(avango.script.Script):
 
 
 def start():
+
+  loader = jsonloader.jsonloader()
+  app = loader.create_application_from_json(sys.argv[1])
+  app.run()
+
 
   # setup scenegraph
   graph = avango.gua.nodes.SceneGraph(Name = "SceneGraph")

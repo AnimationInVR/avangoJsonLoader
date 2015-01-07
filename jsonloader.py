@@ -1,6 +1,9 @@
 import avango
 import avango.gua
 
+import fieldcontainer
+import application
+
 import json
 
 # json Loader Class
@@ -13,54 +16,70 @@ class jsonloader:
 
     self.windows = {}
 
-    self.scene_graph_nodes = {}
-    self.child_parent_pairs =[]
-
     self.scenegraphs = {}
     self.viewer = {}
 
-  def load_json(self, path, root_node):
+  def create_application_from_json(self, json_path):
+    print("creating application from", json_path)
+    
+    self.open_json(json_path)
+
+    self.app = application.Application()
+
+    self.app.viewer = self.load_viewer()
+    self.app.scenegraph = self.load_scenegraph() 
+    self.app.window = self.load_window()    
+
+    self.app.scenegraph.Root.value = self.create_root()
+    self.create_scenegraph_nodes()
+
+    self.app.basic_setup()
+
+    return self.app 
+
+  def open_json(self, path):
     json_file = open(path)
     self.json_data = json.load(json_file)
-    self.root_node = root_node
-    self.first_parse()
-    self.second_parse()
 
-  def first_parse(self):
-    self.create_root()
+  def create_scenegraph_nodes(self):
+    nodes = {}
+    child_parent_pairs = []
 
-    for screen in self.json_data["screens"]:
-      new_screen = self.load_screen(screen)
-      self.scene_graph_nodes[screen] = new_screen
+    new_screen, parent_name = self.load_screen()
+    nodes[new_screen.Name.value] = new_screen
+    child_parent_pairs.append( [new_screen.Name.value, parent_name] )
+    self.app.screen = new_screen
+
+    new_camera, parent_name = self.load_camera()
+    nodes[new_camera.Name.value] = new_camera
+    child_parent_pairs.append( [new_camera.Name.value, parent_name] )
+    self.app.camera = new_camera
 
     for mesh in self.json_data["meshes"]:
-      new_mesh = self.load_mesh(mesh)
-      self.scene_graph_nodes[new_mesh.Name.value] = new_mesh
-
-    for camera in self.json_data["cameras"]:
-      new_camera = self.load_camera(camera)
-      self.scene_graph_nodes[new_camera.Name.value] = new_camera
+      new_mesh, parent_name = self.load_mesh(mesh)
+      nodes[new_mesh.Name.value] = new_mesh
+      child_parent_pairs.append( [new_mesh.Name.value, parent_name] )
 
     for transform in self.json_data["transforms"]:
-      new_transform = self.load_transform(transform)
-      self.scene_graph_nodes[new_transform.Name.value] = new_transform
+      new_transform, parent_name = self.load_transform(transform)
+      nodes[new_transform.Name.value] = new_transform
+      child_parent_pairs.append( [new_transform.Name.value, parent_name] )
 
     for light in self.json_data["lights"]:
-      new_light = self.load_light(light)
-      self.scene_graph_nodes[new_light.Name.value] = new_light
+      new_light, parent_name = self.load_light(light)
+      nodes[new_light.Name.value] = new_light
+      child_parent_pairs.append( [new_light.Name.value, parent_name] )
 
-    for window in self.json_data["windows"]:
-      new_window = self.load_window(window)
-      self.windows[new_window.Name.value] = new_window
-    
-    for scenegraph in self.json_data["scenegraphs"]:
-      new_scenegraph = self.load_scenegraph(scenegraph)
-      self.scenegraphs[new_scenegraph.Name.value] = new_scenegraph
+    self.create_scenegraph_structure(nodes, child_parent_pairs)
 
-    for viewer in self.json_data["viewer"]:
-      new_viewer = self.load_viewer(viewer)
-      self.viewer[new_viewer.Name.value] = new_viewer
-
+  def create_scenegraph_structure(self, nodes, child_parent_pairs):
+    for pair in child_parent_pairs:
+      # TODO
+      if pair[1] == "Av_root":
+        self.app.scenegraph.Root.value.Children.value.append(nodes[pair[0]])
+      else:
+        nodes[pair[1]].Children.value.append(nodes[pair[0]])
+        
 
   def second_parse(self):
     self.create_scenegraph_structure() 
@@ -77,22 +96,17 @@ class jsonloader:
     # Rotate to switch from Blenders to GL`s coordinate system
     node.Transform.value = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)
 
-    self.scene_graph_nodes[node.Name.value] = node
-    self.root_node.Children.value.append(node)
+    return node
 
 
-  def create_scenegraph_structure(self):
-    for pair in self.child_parent_pairs:
-      self.scene_graph_nodes[pair[1]].Children.value.append(self.scene_graph_nodes[pair[0]])
-      # self.root_node.Children.value.append(self.scene_graph_nodes[pair[0]])
 
-  def load_screen(self, screen):
-    print("load screen" , screen)        
+  def load_screen(self):
+    print("load screen" )        
     
-    json_screen = self.json_data["screens"][screen]
+    json_screen = self.json_data["screens"]["Screen"]
 
     name = str(json_screen["name"])
-    parent = str(json_screen["parent"])
+    parent_name = str(json_screen["parent"])
 
     transform = load_transform_matrix( json_screen["transform"] )
 
@@ -101,17 +115,15 @@ class jsonloader:
     screen = avango.gua.nodes.ScreenNode(Name = name, Width = 4, Height = 3)
     screen.Transform.value = transform
 
-    self.child_parent_pairs.append( (name, parent) )
-
-    return screen
+    return screen, parent_name
 
 
-  def load_window(self, window):
-    print("load window" , window)   
+  def load_window(self):
+    print("load window")   
 
-    json_window = self.json_data["windows"][window]
+    json_window = self.json_data["windows"]["Window"]
 
-    title = str( json_window["title"] )
+    title = str(json_window["title"] )
     name = str(json_window["name"])
     size = avango.gua.Vec2ui(json_window["left_resolution"][0], 
                              json_window["left_resolution"][1] )
@@ -128,7 +140,6 @@ class jsonloader:
     
     avango.gua.register_window(name, new_window)
 
-
     return new_window 
 
 
@@ -138,7 +149,7 @@ class jsonloader:
     json_mesh = self.json_data["meshes"][mesh]
 
     name = str(json_mesh["name"])
-    parent = str(json_mesh["parent"])
+    parent_name = str(json_mesh["parent"])
 
     transform = load_transform_matrix( json_mesh["transform"] )
 
@@ -150,21 +161,23 @@ class jsonloader:
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
                                  , default_material
-                                 , avango.gua.LoaderFlags.LOAD_MATERIALS)
+                                 , 0)
+                                 # TODO
+                                 # , avango.gua.LoaderFlags.LOAD_MATERIALS)
   
+    fieldcontainer.Trimesh(geometry)
+
     geometry.Transform.value = transform
 
-    self.child_parent_pairs.append( (name, parent) )
-    
-    return geometry
+    return geometry, parent_name
 
-  def load_camera(self, camera):
-    print("load camera" , camera)        
+  def load_camera(self):
+    print("load camera")        
 
-    json_camera = self.json_data["cameras"][camera]
+    json_camera = self.json_data["cameras"]["Camera"]
 
     name = str(json_camera["name"])
-    parent = str(json_camera["parent"])
+    parent_name = str(json_camera["parent"])
 
     transform = load_transform_matrix( json_camera["transform"] )
 
@@ -181,9 +194,8 @@ class jsonloader:
                                       Resolution = resolution,
                                       OutputWindowName = output_window,
                                       Transform = transform)
-    self.child_parent_pairs.append( (name, parent) )
     
-    return cam 
+    return cam, parent_name 
 
   def load_camera_finish(self, camera):
     print("load camera" , camera)        
@@ -210,20 +222,14 @@ class jsonloader:
     json_transform = self.json_data["transforms"][transform]
 
     name = str(json_transform["name"])
-    parent = str(json_transform["parent"])
+    parent_name = str(json_transform["parent"])
 
     transform = load_transform_matrix( json_transform["transform"] )
 
     node = avango.gua.nodes.TransformNode(Name = name)
     node.Transform.value = transform
 
-    if (json_transform["parent"] == "null"):
-      self.root_node.Children.value.append(node)
-    else:
-      self.child_parent_pairs.append( (name, parent) )
-
-
-    return node
+    return node, parent_name
 
 
   def load_light(self, light):      
@@ -232,7 +238,7 @@ class jsonloader:
     json_light = self.json_data["lights"][light]
 
     name = str(json_light["name"])
-    parent = str(json_light["parent"])
+    parent_name = str(json_light["parent"])
 
 
     transform = load_transform_matrix( json_light["transform"] )
@@ -250,44 +256,34 @@ class jsonloader:
                                            ,EnableShadows = True
                                            ,Brightness = energy * 10)
 
-    self.child_parent_pairs.append( (name, parent) )
+    return light, parent_name
 
-    return light
+  def load_scenegraph(self):     
+    print("load scenegraph")
 
-  def load_scenegraph(self, scenegraph):     
-    print("load scenegraph" , scenegraph)
-
-    json_scenegraph = self.json_data["scenegraphs"][scenegraph]
+    json_scenegraph = self.json_data["scenegraphs"]["SceneGraph"]
 
     name = str(json_scenegraph["name"])
     root = str(json_scenegraph["root"])
 
     graph = avango.gua.nodes.SceneGraph(Name = name)
-    graph.Root.value = self.scene_graph_nodes[root]
 
     return graph
 
-  def load_viewer(self, viewer):
-    print("load viewer" , viewer)
+  def load_viewer(self):
+    print("load viewer")
 
-    json_viewer = self.json_data["viewer"][viewer]
+    json_viewer = self.json_data["viewer"]["Viewer"]
     name = json_viewer["name"]
     viewer = avango.gua.nodes.Viewer(Name = name)
 
     return viewer 
 
-  def load_viewer_finish(self, viewer):
-    print("load viewer" , viewer)
+  def load_viewer_finish(self):
 
-    json_viewer = self.json_data["viewer"][viewer]
-
-    name = json_viewer["name"]
-    
-    viewer = self.viewer[name]
-
-    viewer.Window.value = self.windows[json_viewer["window"]]
-    viewer.SceneGraphs.value = [ self.scenegraphs[json_viewer["camera"]] ]
-    viewer.CameraNodes.value = [ self.scene_graph_nodes[json_viewer["scenegraph"]] ]
+    self.app.viewer.Window.value = self.windows[json_viewer["window"]]
+    self.app.viewer.SceneGraphs.value = [ self.scenegraphs[json_viewer["camera"]] ]
+    self.app.viewer.CameraNodes.value = [ self.scene_graph_nodes[json_viewer["scenegraph"]] ]
 
 
   def load_and_set_PipelineOptions(self, pipe):

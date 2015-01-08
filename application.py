@@ -25,14 +25,11 @@ class Application:
 
     self.camera.LeftScreenPath.value = "Camera/Screen"
 
-    self.screen.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, -2.5)
-    self.camera.Transform.value = avango.gua.make_trans_mat(0.0, 2.0, 5.0)
+    # self.navigator = examples_common.navigator.Navigator()
+    # self.navigator.StartLocation.value = self.camera.Transform.value.get_translate()
+    # self.navigator.OutTransform.connect_from(self.camera.Transform)
 
-    self.navigator = examples_common.navigator.Navigator()
-    self.navigator.StartLocation.value = self.camera.Transform.value.get_translate()
-    self.navigator.OutTransform.connect_from(self.camera.Transform)
+    # self.camera.Transform.connect_from(self.navigator.OutTransform)
 
-    self.camera.Transform.connect_from(self.navigator.OutTransform)
-
-    self.navigator.RotationSpeed.value = 0.2
-    self.navigator.MotionSpeed.value = 0.04
+    # self.navigator.RotationSpeed.value = 0.2
+    # self.navigator.MotionSpeed.value = 0.04

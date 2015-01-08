@@ -155,15 +155,13 @@ class jsonloader:
 
     default_material = avango.gua.create_default_material()
     default_material.set_uniform("Color", avango.gua.Vec4(0.4, 0.3, 0.3, 1.0))
-    default_material.set_uniform("Roughness", 0.4)
+    default_material.set_uniform("Roughness", 0.8)
     default_material.set_uniform("Metalness", 0.8)
 
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
                                  , default_material
-                                 , 0)
-                                 # TODO
-                                 # , avango.gua.LoaderFlags.LOAD_MATERIALS)
+                                 , avango.gua.LoaderFlags.LOAD_MATERIALS)
   
     fieldcontainer.Trimesh(geometry)
 

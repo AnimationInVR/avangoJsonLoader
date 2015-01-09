@@ -1,10 +1,11 @@
 import avango
 import avango.gua
 
-import fieldcontainer
+# import fieldcontainer
 import application
 
 import json
+import math
 
 # json Loader Class
 class jsonloader:
@@ -45,16 +46,12 @@ class jsonloader:
     nodes = {}
     child_parent_pairs = []
 
-    new_screen, parent_name = self.load_screen()
-    nodes[new_screen.Name.value] = new_screen
-    child_parent_pairs.append( [new_screen.Name.value, parent_name] )
-    self.app.screen = new_screen
-
-    new_camera, parent_name = self.load_camera()
+    new_camera, new_screen, parent_name = self.load_camera()
     nodes[new_camera.Name.value] = new_camera
     child_parent_pairs.append( [new_camera.Name.value, parent_name] )
     self.app.camera = new_camera
-
+    self.app.screen = new_screen
+    
     for mesh in self.json_data["meshes"]:
       new_mesh, parent_name = self.load_mesh(mesh)
       nodes[new_mesh.Name.value] = new_mesh
@@ -79,16 +76,6 @@ class jsonloader:
         self.app.scenegraph.Root.value.Children.value.append(nodes[pair[0]])
       else:
         nodes[pair[1]].Children.value.append(nodes[pair[0]])
-        
-
-  def second_parse(self):
-    self.create_scenegraph_structure() 
-
-    for camera in self.json_data["cameras"]:
-      self.load_camera_finish(camera)
-
-    for viewer in self.json_data["viewer"]:
-      self.load_viewer_finish(viewer)
 
 
   def create_root(self):
@@ -97,25 +84,6 @@ class jsonloader:
     node.Transform.value = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)
 
     return node
-
-
-
-  def load_screen(self):
-    print("load screen" )        
-    
-    json_screen = self.json_data["screens"]["Screen"]
-
-    name = str(json_screen["name"])
-    parent_name = str(json_screen["parent"])
-
-    transform = load_transform_matrix( json_screen["transform"] )
-
-    # TODO load hight and width
-
-    screen = avango.gua.nodes.ScreenNode(Name = name, Width = 4, Height = 3)
-    screen.Transform.value = transform
-
-    return screen, parent_name
 
 
   def load_window(self):
@@ -163,8 +131,6 @@ class jsonloader:
                                  , default_material
                                  , avango.gua.LoaderFlags.LOAD_MATERIALS)
   
-    fieldcontainer.Trimesh(geometry)
-
     geometry.Transform.value = transform
 
     return geometry, parent_name
@@ -185,6 +151,12 @@ class jsonloader:
 
     output_window = str(json_camera["output_window_name"])
 
+    # calculate a screen
+    fov = json_camera["field_of_view"]
+    width = math.tan(fov/2.0) * 2.0
+    height = width * 9.0 / 16.0
+    screen = avango.gua.nodes.ScreenNode(Name = "generated_screen", Width = width, Height = height)
+    screen.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, -1.0)
 
     cam = avango.gua.nodes.CameraNode(Name = name,
                                       # LeftScreenPath = "",
@@ -193,25 +165,9 @@ class jsonloader:
                                       OutputWindowName = output_window,
                                       Transform = transform)
     
-    return cam, parent_name 
+    cam.Children.value.append(screen)
 
-  def load_camera_finish(self, camera):
-    print("load camera" , camera)        
-
-    json_camera = self.json_data["cameras"][camera]
-
-    name = str(json_camera["name"])
-    left_screen = str(json_camera["left_screen_path"])
-
-    cam = self.scene_graph_nodes[name]
-    screen = self.scene_graph_nodes[left_screen]
-    
-    sep = '/'
-    path = screen.Path.value
-    path_parts = path.split(sep)
-    path_parts.pop(0)
-    path = sep.join(path_parts)
-    cam.LeftScreenPath.value = path
+    return cam, screen, parent_name 
 
 
   def load_transform(self, transform):       
@@ -276,65 +232,6 @@ class jsonloader:
     viewer = avango.gua.nodes.Viewer(Name = name)
 
     return viewer 
-
-  def load_viewer_finish(self):
-
-    self.app.viewer.Window.value = self.windows[json_viewer["window"]]
-    self.app.viewer.SceneGraphs.value = [ self.scenegraphs[json_viewer["camera"]] ]
-    self.app.viewer.CameraNodes.value = [ self.scene_graph_nodes[json_viewer["scenegraph"]] ]
-
-
-  def load_and_set_PipelineOptions(self, pipe):
-    # GENERAL
-    pipe.EnablePreviewDisplay.value   = self.json_data["pipeline_options"]["enable_preview_display"]
-    pipe.EnableFPSDisplay.value       = self.json_data["pipeline_options"]["enable_fps_display"]
-    pipe.EnableRayDisplay.value       = self.json_data["pipeline_options"]["enable_ray_display"]
-    pipe.EnableBBoxDisplay.value      = self.json_data["pipeline_options"]["enable_bbox_display"]
-    # pipe.EnableWireframe.value        = self.json_data["pipeline_options"]["enable_wire_frame"]
-    pipe.EnableFXAA.value             = self.json_data["pipeline_options"]["enable_FXAA"]
-    pipe.EnableFrustumCulling.value   = self.json_data["pipeline_options"]["enable_frustum_culling"]
-    pipe.EnableBackfaceCulling.value  = self.json_data["pipeline_options"]["enable_backface_culling"]
-
-    # CLIPPING
-    pipe.NearClip.value  = self.json_data["pipeline_options"]["near_clip"]
-    pipe.FarClip.value  = self.json_data["pipeline_options"]["far_clip"]
-
-    # SSAO
-    pipe.EnableSsao.value    = self.json_data["pipeline_options"]["ssao_settings"]["enable"]
-    pipe.SsaoRadius.value    = self.json_data["pipeline_options"]["ssao_settings"]["radius"]
-    pipe.SsaoIntensity.value = self.json_data["pipeline_options"]["ssao_settings"]["intensity"]
-    pipe.SsaoFalloff.value   = self.json_data["pipeline_options"]["ssao_settings"]["falloff"]
-
-    # BLOOM
-    pipe.EnableBloom.value    = self.json_data["pipeline_options"]["bloom_settings"]["enable"]
-    pipe.BloomRadius.value    = self.json_data["pipeline_options"]["bloom_settings"]["radius"]
-    pipe.BloomThreshold.value = self.json_data["pipeline_options"]["bloom_settings"]["threshold"]
-    pipe.BloomIntensity.value = self.json_data["pipeline_options"]["bloom_settings"]["intensity"]
-
-    # FOG
-    pipe.EnableFog.value   = self.json_data["pipeline_options"]["fog_settings"]["enable"]
-    pipe.FogStart.value    = self.json_data["pipeline_options"]["fog_settings"]["start"]
-    pipe.FogEnd.value      = self.json_data["pipeline_options"]["fog_settings"]["end"]
-    pipe.FogTexture.value  = str( self.json_data["pipeline_options"]["fog_settings"]["texture"] )
-    fog_color = self.json_data["pipeline_options"]["fog_settings"]["color"]
-    pipe.FogColor.value    = avango.gua.Color(fog_color[0], fog_color[1], fog_color[2])
-
-    # BACKGROUND
-    pipe.BackgroundMode.value    = self.json_data["pipeline_options"]["background_settings"]["mode"]
-    pipe.BackgroundTexture.value = str( self.json_data["pipeline_options"]["background_settings"]["texture"] )
-    background_color = self.json_data["pipeline_options"]["background_settings"]["color"]
-    pipe.BackgroundColor.value   = avango.gua.Color(background_color[0], background_color[1], background_color[2])
-
-    # VIGNETTE
-    pipe.EnableVignette.value   = self.json_data["pipeline_options"]["vignette_settings"]["enable"]
-    vignette_color = self.json_data["pipeline_options"]["vignette_settings"]["color"]
-    pipe.VignetteColor.value   = avango.gua.Color(vignette_color[0], vignette_color[1], vignette_color[2])
-    pipe.VignetteCoverage.value = self.json_data["pipeline_options"]["vignette_settings"]["coverage"]
-    pipe.VignetteSoftness.value = self.json_data["pipeline_options"]["vignette_settings"]["softness"]
-
-    # HDR
-    pipe.EnableHDR.value = self.json_data["pipeline_options"]["hdr_settings"]["enable"]
-    pipe.HDRKey.value    = self.json_data["pipeline_options"]["hdr_settings"]["key"]
 
 
 def load_transform_matrix(matrix_list):

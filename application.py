@@ -1,6 +1,4 @@
 from examples_common.GuaVE import GuaVE
-import examples_common.navigator
-
 import avango.gua
 
 class Application:
@@ -23,13 +21,4 @@ class Application:
     self.viewer.SceneGraphs.value = [self.scenegraph]
     self.viewer.Window.value = self.window
 
-    self.camera.LeftScreenPath.value = "Camera/Screen"
-
-    # self.navigator = examples_common.navigator.Navigator()
-    # self.navigator.StartLocation.value = self.camera.Transform.value.get_translate()
-    # self.navigator.OutTransform.connect_from(self.camera.Transform)
-
-    # self.camera.Transform.connect_from(self.navigator.OutTransform)
-
-    # self.navigator.RotationSpeed.value = 0.2
-    # self.navigator.MotionSpeed.value = 0.04
+    self.camera.LeftScreenPath.value = self.screen.Path.value[1:]

@@ -152,8 +152,7 @@ class jsonloader:
     output_window = str(json_camera["output_window_name"])
 
     # calculate a screen
-    # fov = json_camera["field_of_view"]
-    fov = 20.0
+    fov = json_camera["field_of_view"]
     width = math.tan(fov/2.0) * 2.0
     height = width * 9.0 / 16.0
     screen = avango.gua.nodes.ScreenNode(Name = "generated_screen", Width = width, Height = height)

@@ -152,7 +152,8 @@ class jsonloader:
     output_window = str(json_camera["output_window_name"])
 
     # calculate a screen
-    fov = json_camera["field_of_view"]
+    # fov = json_camera["field_of_view"]
+    fov = 20.0
     width = math.tan(fov/2.0) * 2.0
     height = width * 9.0 / 16.0
     screen = avango.gua.nodes.ScreenNode(Name = "generated_screen", Width = width, Height = height)
@@ -215,21 +216,14 @@ class jsonloader:
   def load_scenegraph(self):     
     print("load scenegraph")
 
-    json_scenegraph = self.json_data["scenegraphs"]["SceneGraph"]
-
-    name = str(json_scenegraph["name"])
-    root = str(json_scenegraph["root"])
-
-    graph = avango.gua.nodes.SceneGraph(Name = name)
+    graph = avango.gua.nodes.SceneGraph(Name = 'SceneGraph')
 
     return graph
 
   def load_viewer(self):
     print("load viewer")
 
-    json_viewer = self.json_data["viewer"]["Viewer"]
-    name = json_viewer["name"]
-    viewer = avango.gua.nodes.Viewer(Name = name)
+    viewer = avango.gua.nodes.Viewer(Name = 'viewer')
 
     return viewer 
 

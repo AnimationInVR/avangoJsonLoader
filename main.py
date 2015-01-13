@@ -58,58 +58,6 @@ def start():
   app.run()
 
 
-  # setup scenegraph
-  graph = avango.gua.nodes.SceneGraph(Name = "SceneGraph")
-
-  scene = avango.gua.nodes.TransformNode(Name = "scene")
-  scene.Transform.value = avango.gua.make_identity_mat()
-
-  reloader = Reloader()
-
-  reloader.myConstructor("blabla.json", scene)
-
-  window = reloader.get_window("Window")
-  # graph = reloader.get_scenegraph("SceneGraph")
-
-  # setup viewing
-  size = avango.gua.Vec2ui(1920, 1080)
-
-  cam = avango.gua.nodes.CameraNode(Name = "cam",
-                                    LeftScreenPath = "/cam/screen",
-                                    SceneGraph = "SceneGraph",
-                                    Resolution = size,
-                                    OutputWindowName = "Window") 
-
-  screen = avango.gua.nodes.ScreenNode(Name = "screen", Width = 4, Height = 3)
-  screen.Transform.value = avango.gua.make_trans_mat(0.0, 0.0, -2.5)
-  
-  cam.Children.value = [screen]
-  cam.Transform.value = avango.gua.make_trans_mat(0.0, 2.0, 5.0)
-
-  graph.Root.value.Children.value = [cam, scene]
-
-  avango.gua.register_window("window", window)
-
-  #setup viewer
-  viewer = avango.gua.nodes.Viewer()
-  viewer.CameraNodes.value = [cam]
-  viewer.SceneGraphs.value = [graph]
-  viewer.Window.value = window
-
-  navigator = examples_common.navigator.Navigator()
-  navigator.StartLocation.value = cam.Transform.value.get_translate()
-  navigator.OutTransform.connect_from(cam.Transform)
-
-  cam.Transform.connect_from(navigator.OutTransform)
-
-  navigator.RotationSpeed.value = 0.2
-  navigator.MotionSpeed.value = 0.04
-
-  guaVE = GuaVE()
-  guaVE.start(locals(), globals(), show_banner = False)
-  viewer.run()
-
-
 if __name__ == '__main__':
   start()
 

@@ -3,5 +3,6 @@
 data
 tmp
 *.json
+*.avango
 *.obj
 *.mtl

@@ -15,11 +15,6 @@ class jsonloader:
     self.root_node = None
     self.TriMeshLoader = avango.gua.nodes.TriMeshLoader()
 
-    self.windows = {}
-
-    self.scenegraphs = {}
-    self.viewer = {}
-
   def create_application_from_json(self, json_path):
     print("creating application from", json_path)
     
@@ -27,12 +22,11 @@ class jsonloader:
 
     self.app = application.Application()
 
-    self.app.viewer = self.load_viewer()
-    self.app.scenegraph = self.load_scenegraph() 
     self.app.window = self.load_window()    
 
     self.app.scenegraph.Root.value = self.create_root()
     self.create_scenegraph_nodes()
+    self.create_field_containers()
 
     self.app.basic_setup()
 
@@ -49,7 +43,7 @@ class jsonloader:
     new_camera, new_screen, parent_name = self.load_camera()
     nodes[new_camera.Name.value] = new_camera
     child_parent_pairs.append( [new_camera.Name.value, parent_name] )
-    self.app.camera = new_camera
+    self.app.set_camera( new_camera )
     self.app.screen = new_screen
     
     for mesh in self.json_data["meshes"]:
@@ -69,20 +63,36 @@ class jsonloader:
 
     self.create_scenegraph_structure(nodes, child_parent_pairs)
 
+
+  def create_field_containers(self):
+    # TODO do something no useless
+    json_time_sensor = self.json_data["time_sensors"]["TimeSensor"]
+
+    name = json_time_sensor["name"]
+
+    new_time_sensor = avango.nodes.TimeSensor(Name = name)
+
+    self.app.add_field_container(new_time_sensor.Name.value, new_time_sensor)
+
+    for fieldconnection in json_time_sensor["field_connections"]:
+      self.app.add_field_connection(name, fieldconnection[0], fieldconnection[1], fieldconnection[2])
+      
+
+
+        
+
   def create_scenegraph_structure(self, nodes, child_parent_pairs):
     for pair in child_parent_pairs:
-      # TODO
-      if pair[1] == "Av_root":
+      if pair[1] == "null":
         self.app.scenegraph.Root.value.Children.value.append(nodes[pair[0]])
       else:
         nodes[pair[1]].Children.value.append(nodes[pair[0]])
 
 
   def create_root(self):
-    node = avango.gua.nodes.TransformNode(Name = "Av_root")
+    node = avango.gua.nodes.TransformNode(Name = "root")
     # Rotate to switch from Blenders to GL`s coordinate system
     node.Transform.value = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)
-
     return node
 
 
@@ -211,20 +221,6 @@ class jsonloader:
                                            ,Brightness = energy * 10)
 
     return light, parent_name
-
-  def load_scenegraph(self):     
-    print("load scenegraph")
-
-    graph = avango.gua.nodes.SceneGraph(Name = 'SceneGraph')
-
-    return graph
-
-  def load_viewer(self):
-    print("load viewer")
-
-    viewer = avango.gua.nodes.Viewer(Name = 'viewer')
-
-    return viewer 
 
 
 def load_transform_matrix(matrix_list):

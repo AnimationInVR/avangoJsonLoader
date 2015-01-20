@@ -6,3 +6,5 @@ tmp
 *.avango
 *.obj
 *.mtl
+*.sublime-project
+*.sublime-workspace

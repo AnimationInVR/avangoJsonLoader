@@ -75,7 +75,7 @@ class jsonloader:
     self.app.add_field_container(new_time_sensor.Name.value, new_time_sensor)
 
     for fieldconnection in json_time_sensor["field_connections"]:
-      self.app.add_field_connection(name, fieldconnection[0], fieldconnection[1], fieldconnection[2])
+      self.app.add_field_connection(name, fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
       
 
 

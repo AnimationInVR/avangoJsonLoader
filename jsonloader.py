@@ -1,8 +1,9 @@
 import avango
 import avango.gua
 
-# import fieldcontainer
+import field_containers
 import application
+
 
 import json
 import math
@@ -24,11 +25,12 @@ class jsonloader:
 
     self.app.window = self.load_window()    
 
-    self.app.scenegraph.Root.value = self.create_root()
+    self.to_GL_coord(self.app.scenegraph.Root.value)
     self.create_scenegraph_nodes()
     self.create_field_containers()
 
     self.app.basic_setup()
+    self.app.apply_field_connections()
 
     return self.app 
 
@@ -37,36 +39,47 @@ class jsonloader:
     self.json_data = json.load(json_file)
 
   def create_scenegraph_nodes(self):
-    nodes = {}
+    self.nodes = {}
     child_parent_pairs = []
 
     new_camera, new_screen, parent_name = self.load_camera()
-    nodes[new_camera.Name.value] = new_camera
+    self.nodes[new_camera.Name.value] = new_camera
     child_parent_pairs.append( [new_camera.Name.value, parent_name] )
     self.app.set_camera( new_camera )
     self.app.screen = new_screen
     
     for mesh in self.json_data["meshes"]:
       new_mesh, parent_name = self.load_mesh(mesh)
-      nodes[new_mesh.Name.value] = new_mesh
+      self.nodes[new_mesh.Name.value] = new_mesh
       child_parent_pairs.append( [new_mesh.Name.value, parent_name] )
 
     for transform in self.json_data["transforms"]:
       new_transform, parent_name = self.load_transform(transform)
-      nodes[new_transform.Name.value] = new_transform
+      self.nodes[new_transform.Name.value] = new_transform
       child_parent_pairs.append( [new_transform.Name.value, parent_name] )
 
     for light in self.json_data["lights"]:
       new_light, parent_name = self.load_light(light)
-      nodes[new_light.Name.value] = new_light
+      self.nodes[new_light.Name.value] = new_light
       child_parent_pairs.append( [new_light.Name.value, parent_name] )
 
-    self.create_scenegraph_structure(nodes, child_parent_pairs)
+    self.create_scenegraph_structure(child_parent_pairs)
 
 
   def create_field_containers(self):
-    # TODO do something no useless
-    json_time_sensor = self.json_data["time_sensors"]["TimeSensor"]
+    # TODO do something not useless
+    for ts in self.json_data["time_sensors"]:
+      self.create_time_sensor(ts)
+
+    for rm in self.json_data["rotation_matrices"]:
+      self.create_rotation_matrix(rm)
+
+    for fcfo in self.json_data["field_containers_from_objects"]:
+      self.create_field_container_from_object(fcfo)
+
+
+  def create_time_sensor(self, time_sensor):
+    json_time_sensor = self.json_data["time_sensors"][time_sensor]
 
     name = json_time_sensor["name"]
 
@@ -75,25 +88,40 @@ class jsonloader:
     self.app.add_field_container(new_time_sensor.Name.value, new_time_sensor)
 
     for fieldconnection in json_time_sensor["field_connections"]:
-      self.app.add_field_connection(name, fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
+      self.app.plan_field_connection(name, fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
       
 
+  def create_rotation_matrix(self, rotation_matrix):
+    json_rotation_matrix = self.json_data["rotation_matrices"][rotation_matrix]
 
-        
+    name = json_rotation_matrix["name"]
 
-  def create_scenegraph_structure(self, nodes, child_parent_pairs):
+    new_rot_mat = field_containers.RotationMatrix(Name = name)
+
+    self.app.add_field_container(new_rot_mat.Name.value, new_rot_mat)
+
+    for fieldconnection in json_rotation_matrix["field_connections"]:
+      self.app.plan_field_connection(name, fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
+
+
+  def create_field_container_from_object(self, field_containers_from_objects):
+    json_fcfo = self.json_data["field_containers_from_objects"][field_containers_from_objects]
+
+    obj = self.nodes[json_fcfo["referenced_name"]]
+
+    self.app.add_field_container(obj.Name.value, obj)
+
+  def create_scenegraph_structure(self, child_parent_pairs):
     for pair in child_parent_pairs:
       if pair[1] == "null":
-        self.app.scenegraph.Root.value.Children.value.append(nodes[pair[0]])
+        self.app.scenegraph.Root.value.Children.value.append(self.nodes[pair[0]])
       else:
-        nodes[pair[1]].Children.value.append(nodes[pair[0]])
+        self.nodes[pair[1]].Children.value.append(self.nodes[pair[0]])
 
 
-  def create_root(self):
-    node = avango.gua.nodes.TransformNode(Name = "root")
+  def to_GL_coord(self, node):
     # Rotate to switch from Blenders to GL`s coordinate system
     node.Transform.value = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)
-    return node
 
 
   def load_window(self):
@@ -131,14 +159,8 @@ class jsonloader:
 
     transform = load_transform_matrix( json_mesh["transform"] )
 
-    default_material = avango.gua.create_default_material()
-    default_material.set_uniform("Color", avango.gua.Vec4(0.4, 0.3, 0.3, 1.0))
-    default_material.set_uniform("Roughness", 0.8)
-    default_material.set_uniform("Metalness", 0.8)
-
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
-                                 , default_material
                                  , avango.gua.LoaderFlags.LOAD_MATERIALS)
   
     geometry.Transform.value = transform
@@ -170,7 +192,7 @@ class jsonloader:
 
     cam = avango.gua.nodes.CameraNode(Name = name,
                                       # LeftScreenPath = "",
-                                      SceneGraph = scenegraph,
+                                      SceneGraph = "SceneGraph",
                                       Resolution = resolution,
                                       OutputWindowName = output_window,
                                       Transform = transform)

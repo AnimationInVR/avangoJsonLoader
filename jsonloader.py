@@ -23,7 +23,7 @@ class jsonloader:
 
     self.app = application.Application()
 
-    self.app.window = self.load_window()    
+    # self.app.window = self.load_window()    
 
     self.to_GL_coord(self.app.scenegraph.Root.value)
     self.create_scenegraph_nodes()
@@ -42,11 +42,11 @@ class jsonloader:
     self.nodes = {}
     child_parent_pairs = []
 
-    new_camera, new_screen, parent_name = self.load_camera()
-    self.nodes[new_camera.Name.value] = new_camera
-    child_parent_pairs.append( [new_camera.Name.value, parent_name] )
-    self.app.set_camera( new_camera )
-    self.app.screen = new_screen
+    # new_camera, new_screen, parent_name = self.load_camera()
+    # self.nodes[new_camera.Name.value] = new_camera
+    # child_parent_pairs.append( [new_camera.Name.value, parent_name] )
+    # self.app.set_camera( new_camera )
+    # self.app.screen = new_screen
     
     for mesh in self.json_data["meshes"]:
       new_mesh, parent_name = self.load_mesh(mesh)
@@ -74,8 +74,17 @@ class jsonloader:
     for rm in self.json_data["rotation_matrices"]:
       self.create_rotation_matrix(rm)
 
-    for fcfo in self.json_data["field_containers_from_objects"]:
+    for tm in self.json_data["translation_matrices"]:
+      self.create_translation_matrix(tm)
+
+    for fcfo in self.json_data["from_objects"]:
       self.create_field_container_from_object(fcfo)
+
+    for vec3 in self.json_data["vec3s"]:
+      self.create_vec3(vec3)
+
+    for script in self.json_data["scripts"]:
+      field_containers.script.create_new_script(self.json_data["scripts"][script], self.app)
 
 
   def create_time_sensor(self, time_sensor):
@@ -85,31 +94,33 @@ class jsonloader:
 
     new_time_sensor = avango.nodes.TimeSensor(Name = name)
 
-    self.app.add_field_container(new_time_sensor.Name.value, new_time_sensor)
+    self.app.add_field_container(new_time_sensor)
 
     for fieldconnection in json_time_sensor["field_connections"]:
       self.app.plan_field_connection(name, fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
       
 
   def create_rotation_matrix(self, rotation_matrix):
-    json_rotation_matrix = self.json_data["rotation_matrices"][rotation_matrix]
+    new_field_container = field_containers.rotation_matrix.RotationMatrix()
+    new_field_container.constructor(self.json_data["rotation_matrices"][rotation_matrix], self.app)
 
-    name = json_rotation_matrix["name"]
-
-    new_rot_mat = field_containers.RotationMatrix(Name = name)
-
-    self.app.add_field_container(new_rot_mat.Name.value, new_rot_mat)
-
-    for fieldconnection in json_rotation_matrix["field_connections"]:
-      self.app.plan_field_connection(name, fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
-
+  def create_translation_matrix(self, translation_matrix):
+    new_field_container = field_containers.translation_matrix.TranslationMatrix()
+    new_field_container.constructor(self.json_data["translation_matrices"][translation_matrix], self.app)
 
   def create_field_container_from_object(self, field_containers_from_objects):
-    json_fcfo = self.json_data["field_containers_from_objects"][field_containers_from_objects]
+    json_fcfo = self.json_data["from_objects"][field_containers_from_objects]
 
-    obj = self.nodes[json_fcfo["referenced_name"]]
+    ref_name = json_fcfo["referenced_name"]
+    ref_name = ref_name.replace('.', '_')
 
-    self.app.add_field_container(obj.Name.value, obj)
+    obj = self.nodes[ref_name]
+    self.app.add_field_container(obj)
+
+  def create_vec3(self, vec3):
+    new_field_container = field_containers.vec3.Vec3()
+    new_field_container.constructor(self.json_data["vec3s"][vec3], self.app)
+
 
   def create_scenegraph_structure(self, child_parent_pairs):
     for pair in child_parent_pairs:
@@ -155,7 +166,10 @@ class jsonloader:
     json_mesh = self.json_data["meshes"][mesh]
 
     name = str(json_mesh["name"])
+    name = name.replace('.','_')
+
     parent_name = str(json_mesh["parent"])
+    parent_name = parent_name.replace('.','_')
 
     transform = load_transform_matrix( json_mesh["transform"] )
 

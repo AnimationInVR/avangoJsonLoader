@@ -85,6 +85,9 @@ class jsonloader:
     for script in self.json_data["scripts"]:
       field_containers.script.create_new_script(self.json_data["scripts"][script], self.app)
 
+    for fm in self.json_data["floatmaths"]:
+      self.create_float_math(fm)
+
 
   def create_time_sensor(self, time_sensor):
     json_time_sensor = self.json_data["time_sensors"][time_sensor]
@@ -119,6 +122,10 @@ class jsonloader:
   def create_vec3(self, vec3):
     new_field_container = field_containers.vec3.Vec3()
     new_field_container.constructor(self.json_data["vec3s"][vec3], self.app)
+
+  def create_float_math(self, fm):
+    new_field_container = field_containers.float_math.FloatMath()
+    new_field_container.constructor(self.json_data["floatmaths"][fm], self.app)
 
 
   def create_scenegraph_structure(self, child_parent_pairs):

@@ -25,7 +25,6 @@ class jsonloader:
 
     # self.app.window = self.load_window()    
 
-    self.to_GL_coord(self.app.scenegraph.Root.value)
     self.create_scenegraph_nodes()
     self.create_field_containers()
 
@@ -125,14 +124,9 @@ class jsonloader:
   def create_scenegraph_structure(self, child_parent_pairs):
     for pair in child_parent_pairs:
       if pair[1] == "null":
-        self.app.scenegraph.Root.value.Children.value.append(self.nodes[pair[0]])
+        self.app.root.Children.value.append(self.nodes[pair[0]])
       else:
         self.nodes[pair[1]].Children.value.append(self.nodes[pair[0]])
-
-
-  def to_GL_coord(self, node):
-    # Rotate to switch from Blenders to GL`s coordinate system
-    node.Transform.value = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)
 
 
   def load_window(self):

@@ -11,6 +11,11 @@ class Application:
     self.camera = None
     self.field_containers = {}
     self.planned_field_connections = []
+    self.root = avango.gua.nodes.TransformNode(
+      Name = "Custom_Root",
+      Transform = avango.gua.make_rot_mat(-90.0, 1.0, 0.0, 0.0)  
+    )
+    self.scenegraph.Root.value.Children.value.append(self.root)
 
   def run(self):
     guaVE = GuaVE()
@@ -18,6 +23,7 @@ class Application:
     self.viewer.run()
 
   def basic_setup(self):
+
     size = avango.gua.Vec2ui(1024, 768)
 
     self.camera = avango.gua.nodes.CameraNode(

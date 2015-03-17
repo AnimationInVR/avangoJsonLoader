@@ -41,11 +41,11 @@ class jsonloader:
     self.nodes = {}
     child_parent_pairs = []
 
-    # new_camera, new_screen, parent_name = self.load_camera()
-    # self.nodes[new_camera.Name.value] = new_camera
-    # child_parent_pairs.append( [new_camera.Name.value, parent_name] )
-    # self.app.set_camera( new_camera )
-    # self.app.screen = new_screen
+    new_camera, new_screen, parent_name = self.load_camera()
+    self.nodes[new_camera.Name.value] = new_camera
+    child_parent_pairs.append( [new_camera.Name.value, parent_name] )
+    self.app.set_camera( new_camera )
+    self.app.screen = new_screen
     
     for mesh in self.json_data["meshes"]:
       new_mesh, parent_name = self.load_mesh(mesh)
@@ -176,8 +176,14 @@ class jsonloader:
 
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
-                                 , avango.gua.LoaderFlags.LOAD_MATERIALS)
+                                 , 0)
   
+    color = avango.gua.Vec4(json_mesh['color'][0], json_mesh['color'][1], json_mesh['color'][2], 1.0)
+
+    geometry.Material.value.set_uniform('Color', color)
+    geometry.Material.value.set_uniform('Roughness', json_mesh['roughness'])
+    geometry.Material.value.set_uniform('Metalness', json_mesh['metalness'])
+    geometry.Material.value.set_uniform('Emissivity', json_mesh['emissivity'])
     geometry.Transform.value = transform
 
     return geometry, parent_name
@@ -185,18 +191,18 @@ class jsonloader:
   def load_camera(self):
     print("load camera")        
 
-    json_camera = self.json_data["cameras"]["Camera"]
+    json_camera = self.json_data["camera"]
 
     name = str(json_camera["name"])
     parent_name = str(json_camera["parent"])
 
     transform = load_transform_matrix( json_camera["transform"] )
 
-    scenegraph = str(json_camera["scenegraph"])
+    # scenegraph = str(json_camera["scenegraph"])
 
-    resolution = avango.gua.Vec2ui(json_camera["resolution"][0], json_camera["resolution"][1] )
+    # resolution = avango.gua.Vec2ui(json_camera["resolution"][0], json_camera["resolution"][1] )
 
-    output_window = str(json_camera["output_window_name"])
+    # output_window = str(json_camera["output_window_name"])
 
     # calculate a screen
     fov = json_camera["field_of_view"]
@@ -208,8 +214,8 @@ class jsonloader:
     cam = avango.gua.nodes.CameraNode(Name = name,
                                       # LeftScreenPath = "",
                                       SceneGraph = "SceneGraph",
-                                      Resolution = resolution,
-                                      OutputWindowName = output_window,
+                                      Resolution = avango.gua.Vec2ui(1024, 768),
+                                      OutputWindowName = "window",
                                       Transform = transform)
     
     cam.Children.value.append(screen)

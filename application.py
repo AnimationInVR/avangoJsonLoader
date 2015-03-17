@@ -24,23 +24,25 @@ class Application:
 
   def basic_setup(self):
 
-    size = avango.gua.Vec2ui(1024, 768)
+    size = avango.gua.Vec2ui(1600, 900)
 
-    self.camera = avango.gua.nodes.CameraNode(
-      LeftScreenPath = "/screen",
-      SceneGraph = "SceneGraph",
-      Resolution = size,
-      OutputWindowName = "window",
-      Transform = avango.gua.make_trans_mat(0.0, 0.0, 3.5)
-    )
+    # self.camera = avango.gua.nodes.CameraNode(
+    #   LeftScreenPath = "/screen",
+    #   SceneGraph = "SceneGraph",
+    #   Resolution = size,
+    #   OutputWindowName = "window",
+    #   Transform = avango.gua.make_trans_mat(0.0, 0.0, 3.5)
+    # )
 
-    self.screen = avango.gua.nodes.ScreenNode(
-      Name = "screen",
-      Width = 2,
-      Height = 1.5,
-      Children = [self.camera],
-      Transform = avango.gua.make_trans_mat(0.0, 0.0, 15.0)
-    )
+    # self.screen = avango.gua.nodes.ScreenNode(
+    #   Name = "screen",
+    #   Width = 2,
+    #   Height = 1.5,
+    #   Children = [self.camera],
+    #   Transform = avango.gua.make_trans_mat(0.0, 0.0, 15.0)
+    # )
+    self.camera.LeftScreenPath.value = self.screen.Path.value
+
 
     self.scenegraph.Root.value.Children.value.append(self.screen)
 
@@ -74,4 +76,4 @@ class Application:
 
   def set_camera(self, camera):
     self.camera = camera
-    self.add_field_container(camera.Name.value, camera)
+    self.add_field_container(camera)

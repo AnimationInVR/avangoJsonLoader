@@ -20,7 +20,7 @@ class RotationMatrix(avango.script.Script):
     self.Axis.value = avango.gua.Vec3(0.0, 1.0, 0.0)
 
   def constructor(self, json, app):
-    self.Name.value = json["name"]
+    self.Name.value = json["name"].replace('.','_')
     
     values = json["values"]
     self.Angle.value = values["Angle"]

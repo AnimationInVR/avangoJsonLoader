@@ -214,7 +214,7 @@ class jsonloader:
     cam = avango.gua.nodes.CameraNode(Name = name,
                                       # LeftScreenPath = "",
                                       SceneGraph = "SceneGraph",
-                                      Resolution = avango.gua.Vec2ui(1024, 768),
+                                      Resolution = avango.gua.Vec2ui(1600, 900),
                                       OutputWindowName = "window",
                                       Transform = transform)
     

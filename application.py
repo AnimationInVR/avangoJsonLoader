@@ -76,4 +76,3 @@ class Application:
 
   def set_camera(self, camera):
     self.camera = camera
-    self.add_field_container(camera)

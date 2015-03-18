@@ -47,6 +47,8 @@ class jsonloader:
     self.app.set_camera( new_camera )
     self.app.screen = new_screen
     
+    self.load_materials()
+
     for mesh in self.json_data["meshes"]:
       new_mesh, parent_name = self.load_mesh(mesh)
       self.nodes[new_mesh.Name.value] = new_mesh
@@ -160,6 +162,21 @@ class jsonloader:
 
     return new_window 
 
+  def load_materials(self):
+    json_materials = self.json_data["materials"]
+      
+    self.materials = {}
+
+    self.materials["default_material"] = avango.gua.nodes.Material()
+
+    for mat in json_materials:
+      new_mat = avango.gua.nodes.Material()
+      color = avango.gua.Vec4(json_materials[mat]['color'][0], json_materials[mat]['color'][1], json_materials[mat]['color'][2], 1.0)
+      new_mat.set_uniform('Color', color)
+      new_mat.set_uniform('Roughness', json_materials[mat]['roughness'])
+      new_mat.set_uniform('Metalness', json_materials[mat]['metalness'])
+      new_mat.set_uniform('Emissivity', json_materials[mat]['emissivity'])
+      self.materials[mat] = new_mat
 
   def load_mesh(self, mesh):
     print("load mesh" , mesh) 
@@ -173,17 +190,13 @@ class jsonloader:
     parent_name = parent_name.replace('.','_')
 
     transform = load_transform_matrix( json_mesh["transform"] )
+    material = self.materials[json_mesh["material"]]
 
     geometry = self.TriMeshLoader.create_geometry_from_file( name
                                  , str(json_mesh["file"])
+                                 , material
                                  , 0)
-  
-    color = avango.gua.Vec4(json_mesh['color'][0], json_mesh['color'][1], json_mesh['color'][2], 1.0)
 
-    geometry.Material.value.set_uniform('Color', color)
-    geometry.Material.value.set_uniform('Roughness', json_mesh['roughness'])
-    geometry.Material.value.set_uniform('Metalness', json_mesh['metalness'])
-    geometry.Material.value.set_uniform('Emissivity', json_mesh['emissivity'])
     geometry.Transform.value = transform
 
     return geometry, parent_name

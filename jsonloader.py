@@ -21,6 +21,8 @@ class jsonloader:
     
     self.open_json(json_path)
 
+    self.file_path = json_path.rpartition('/')[0] + '/'
+
     self.app = application.Application()
 
     # self.app.window = self.load_window()    
@@ -192,8 +194,10 @@ class jsonloader:
     transform = load_transform_matrix( json_mesh["transform"] )
     material = self.materials[json_mesh["material"]]
 
+    path = self.file_path + str(json_mesh["file"])
+
     geometry = self.TriMeshLoader.create_geometry_from_file( name
-                                 , str(json_mesh["file"])
+                                 , path
                                  , material
                                  , 0)
 

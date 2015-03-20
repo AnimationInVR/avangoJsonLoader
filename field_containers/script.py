@@ -3,11 +3,19 @@ import avango.gua
 import avango.script
 from avango.script import field_has_changed
 
-def create_new_script(json, app):
+from importlib import machinery
+
+
+def create_new_script(json, app, filepath):
   module = json['module']
   classname = json['name']
 
-  exec("from tmp." + module + " import " + classname)
+  filepath = filepath + "tmp/" + module + ".py"
+
+  loader = machinery.SourceFileLoader(module, filepath)
+  loader.load_module()
+  exec("from "+ module + " import " + classname)
+
   new_script = eval(classname + "()", globals(), locals())
   new_script.Name.value = classname
 

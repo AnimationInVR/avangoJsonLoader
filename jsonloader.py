@@ -87,7 +87,7 @@ class jsonloader:
       self.create_vec3(vec3)
 
     for script in self.json_data["scripts"]:
-      field_containers.script.create_new_script(self.json_data["scripts"][script], self.app)
+      field_containers.script.create_new_script(self.json_data["scripts"][script], self.app, self.file_path)
 
     for fm in self.json_data["floatmaths"]:
       self.create_float_math(fm)

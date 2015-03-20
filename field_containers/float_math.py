@@ -25,6 +25,9 @@ def function_mod(first, second):
 def function_root(first, second):
   return math.pow(first, 1.0/second)
 
+def function_sin(first, second):
+  return math.sin(first) * second
+
 
 class FloatMath(avango.script.Script):
 
@@ -41,7 +44,8 @@ class FloatMath(avango.script.Script):
     'DIVIDE': function_div,
     'POWER': function_pow,
     'MODULO': function_mod,
-    'ROOT': function_root
+    'ROOT': function_root,
+    'SINUS': function_sin
   }
 
   def __init__(self):

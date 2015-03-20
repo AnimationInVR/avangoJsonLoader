@@ -1,6 +1,7 @@
 import avango
 import avango.gua
 import avango.script
+import math
 from avango.script import field_has_changed
 
 def function_add(first, second):
@@ -15,6 +16,15 @@ def function_mult(first, second):
 def function_div(first, second):
   return first / second
 
+def function_pow(first, second):
+  return math.pow(first, second)
+  
+def function_mod(first, second):
+  return first % second
+
+def function_root(first, second):
+  return math.pow(first, 1.0/second)
+
 
 class FloatMath(avango.script.Script):
 
@@ -28,7 +38,10 @@ class FloatMath(avango.script.Script):
     'ADD': function_add,
     'SUBTRACT': function_sub,
     'MULTIPLY': function_mult,
-    'DIVIDE': function_div
+    'DIVIDE': function_div,
+    'POWER': function_pow,
+    'MODULO': function_mod,
+    'ROOT': function_root
   }
 
   def __init__(self):

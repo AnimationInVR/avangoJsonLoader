@@ -261,7 +261,7 @@ class jsonloader:
 
     json_light = self.json_data["lights"][light]
 
-    name = str(json_light["name"])
+    name = str(json_light["name"]).replace('.', '_')
     parent_name = str(json_light["parent"])
 
 

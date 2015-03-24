@@ -179,6 +179,7 @@ class jsonloader:
       new_mat.set_uniform('Metalness', json_materials[mat]['metalness'])
       new_mat.set_uniform('Emissivity', json_materials[mat]['emissivity'])
       new_mat.set_uniform('Opacity', json_materials[mat]['opacity'])
+      new_mat.EnableBackfaceCulling.value = json_materials[mat]['backface_culling']
       self.materials[mat] = new_mat
 
   def load_mesh(self, mesh):

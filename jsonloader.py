@@ -178,6 +178,7 @@ class jsonloader:
       new_mat.set_uniform('Roughness', json_materials[mat]['roughness'])
       new_mat.set_uniform('Metalness', json_materials[mat]['metalness'])
       new_mat.set_uniform('Emissivity', json_materials[mat]['emissivity'])
+      new_mat.set_uniform('Opacity', json_materials[mat]['opacity'])
       self.materials[mat] = new_mat
 
   def load_mesh(self, mesh):
@@ -215,10 +216,7 @@ class jsonloader:
 
     transform = load_transform_matrix( json_camera["transform"] )
 
-    # scenegraph = str(json_camera["scenegraph"])
-
-    # resolution = avango.gua.Vec2ui(json_camera["resolution"][0], json_camera["resolution"][1] )
-
+    resolution = avango.gua.Vec2ui(json_camera["resolution"][0], json_camera["resolution"][1] )
     # output_window = str(json_camera["output_window_name"])
 
     # calculate a screen
@@ -231,9 +229,17 @@ class jsonloader:
     cam = avango.gua.nodes.CameraNode(Name = name,
                                       # LeftScreenPath = "",
                                       SceneGraph = "SceneGraph",
-                                      Resolution = avango.gua.Vec2ui(1600, 900),
+                                      Resolution = resolution,
                                       OutputWindowName = "window",
                                       Transform = transform)
+
+    # create pipeline decription and passes
+    json_passes = json_camera["passes"] 
+    passes = list(map(load_pipeline_pass, json_passes))
+    
+    pipeline_description = avango.gua.nodes.PipelineDescription(Passes = passes)
+    pipeline_description.EnableABuffer.value = json_camera["enable_abuffer"]
+    cam.PipelineDescription.value = pipeline_description
     
     cam.Children.value.append(screen)
 
@@ -290,3 +296,82 @@ def load_transform_matrix(matrix_list):
     transform.set_element(int(element/4), element%4 ,matrix_list[element])
 
   return transform
+
+
+def load_pipeline_pass(json_pass):
+  if json_pass["type"] == "RESOLVE_PASS":
+    res_pass = avango.gua.nodes.ResolvePassDescription()
+    res_pass.BackgroundMode.value = eval("avango.gua.BackgroundMode."+json_pass["background_mode"])
+    res_pass.BackgroundColor.value = avango.gua.Color(json_pass["background_color"][0], json_pass["background_color"][1], json_pass["background_color"][2])
+    
+    res_pass.EnvironmentLightingMode.value = eval("avango.gua.EnvironmentLightingMode."+json_pass["environment_lighting_mode"])
+    res_pass.EnvironmentLightingColor.value = avango.gua.Color(json_pass["environment_lighting_color"][0], json_pass["environment_lighting_color"][1], json_pass["environment_lighting_color"][2])
+    res_pass.EnvironmentLightingSphereMap.value = json_pass["environment_lighting_spheremap"]
+    # res_pass.EnvironmentLightingCubemap.value = json_pass["environment_lighting_cubemap"]
+
+    res_pass.HorizonFade.value = json_pass["horizon_fade"]    
+
+    res_pass.EnableSSAO.value = json_pass["ssao_enable"]
+    res_pass.SSAORadius.value = json_pass["ssao_radius"]
+    res_pass.SSAOIntensity.value = json_pass["ssao_intensity"]
+    res_pass.SSAOFalloff.value = json_pass["ssao_falloff"]
+    res_pass.SSAONoiseTexture.value = json_pass["noise_texture"]
+
+    res_pass.EnableScreenSpaceShadow.value = json_pass["screenspace_shadows_enable"]
+    res_pass.ScreenSpaceShadowRadius.value = json_pass["screenspace_shadows_radius"]
+    res_pass.ScreenSpaceShadowMaxRadiusPX.value = json_pass["screenspace_shadows_max_radius_px"]
+    res_pass.ScreenSpaceShadowIntensity.value = json_pass["screenspace_shadows_intensity"]
+
+    res_pass.EnableFog.value = json_pass["fog_enable"]
+    res_pass.FogStart.value = json_pass["fog_start"]
+    res_pass.FogEnd.value = json_pass["fog_end"]
+
+    res_pass.Exposure.value = json_pass["tone_mapping_exposure"]
+    res_pass.ToneMappingMode.value = eval("avango.gua.ToneMappingMode."+json_pass["tone_mapping_mode"])
+
+    res_pass.DebugTiles.value = json_pass["debug_tiles_enable"]
+
+    return res_pass
+  
+  elif json_pass["type"] == "LIGHT_VISIBILITY_PASS":
+    light_pass = avango.gua.nodes.LightVisibilityPassDescription()
+
+    light_pass.RasterizationMode.value = eval("avango.gua.RasterizationMode."+json_pass["rasterization_mode"])
+    light_pass.TilePower.value = json_pass["tile_power"]
+
+    return light_pass
+
+  elif json_pass["type"] == "TRI_MESH_PASS":
+    return avango.gua.nodes.TriMeshPassDescription()
+    
+  elif json_pass["type"] == "TEXTURED_QUAD_PASS":
+    return avango.gua.nodes.TexturedQuadPassDescription()
+
+  elif json_pass["type"] == "TEXTURED_SCREENSPACE_QUAD_PASS":
+    return avango.gua.nodes.TexturedScreenSpaceQuadPassDescription()
+
+  elif json_pass["type"] == "BBOX_PASS":
+    return avango.gua.nodes.BBoxPassDescription()
+
+  elif json_pass["type"] == "DEBUG_VIEW_PASS":
+    return avango.gua.nodes.DebugViewPassDescription()
+
+  elif json_pass["type"] == "SSAA_PASS":
+    return avango.gua.nodes.SSAAPassDescription()
+
+ # Not Working 
+  elif json_pass["type"] == "FULLSCREEN_PASS":
+    return avango.gua.nodes.FullscreenPassDescription()
+
+  elif json_pass["type"] == "VOLUME_PASS":
+    return avango.gua.nodes.VolumePassDescription()
+
+  elif json_pass["type"] == "PLOD_PASS":
+    return avango.gua.nodes.PLODPassDescription()
+
+  elif json_pass["type"] == "NURBS_PASS":
+    return avango.gua.nodes.NurbsMeshPassDescription()
+
+  elif json_pass["type"] == "VIDEO_3D_PASS":
+    return avango.gua.nodes.Video3DPassDescription()
+

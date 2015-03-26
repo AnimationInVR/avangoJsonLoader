@@ -1,5 +1,6 @@
 import avango
 import avango.gua
+import avango.gua.skelanim
 
 import field_containers
 import application
@@ -15,6 +16,7 @@ class jsonloader:
     self.json_data = None
     self.root_node = None
     self.TriMeshLoader = avango.gua.nodes.TriMeshLoader()
+    self.SkelMeshLoader = avango.gua.skelanim.nodes.SkeletalAnimationLoader()
 
   def create_application_from_json(self, json_path):
     print("creating application from", json_path)
@@ -194,14 +196,18 @@ class jsonloader:
     parent_name = parent_name.replace('.','_')
 
     transform = load_transform_matrix( json_mesh["transform"] )
+    path = self.file_path + str(json_mesh["file"])
     material = self.materials[json_mesh["material"]]
 
-    path = self.file_path + str(json_mesh["file"])
-
-    geometry = self.TriMeshLoader.create_geometry_from_file( name
-                                 , path
-                                 , material
-                                 , 0)
+    if json_mesh["has_armature"]:
+      geometry = self.SkelMeshLoader.create_geometry_from_file( name
+                                   , path
+                                   , avango.gua.LoaderFlags.LOAD_MATERIALS)
+    else:
+      geometry = self.TriMeshLoader.create_geometry_from_file( name
+                                   , path
+                                   , material
+                                   , 0)
 
     geometry.Transform.value = transform
 
@@ -345,6 +351,9 @@ def load_pipeline_pass(json_pass):
   elif json_pass["type"] == "TRI_MESH_PASS":
     return avango.gua.nodes.TriMeshPassDescription()
     
+  elif json_pass["type"] == "SKEL_ANIM_PASS":
+    return avango.gua.skelanim.nodes.SkeletalAnimationPassDescription()
+
   elif json_pass["type"] == "TEXTURED_QUAD_PASS":
     return avango.gua.nodes.TexturedQuadPassDescription()
 

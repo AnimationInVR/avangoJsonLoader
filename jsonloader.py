@@ -218,13 +218,17 @@ class jsonloader:
 
     transform = load_transform_matrix( json_mesh["transform"] )
     path = self.file_path + str(json_mesh["file"])
-    material = self.materials[json_mesh["material"]]
 
     if json_mesh["has_armature"]:
       geometry = self.SkelMeshLoader.create_geometry_from_file( name
                                    , path
-                                   , avango.gua.LoaderFlags.LOAD_MATERIALS)
+                                   , 0)
+                                   # , avango.gua.LoaderFlags.LOAD_MATERIALS)
+      for i in range(len(json_mesh["material"])):
+        material_name = json_mesh["material"][i]
+        geometry.Materials.value[i] = self.materials[material_name]
     else:
+      material = self.materials[json_mesh["material"]]
       geometry = self.TriMeshLoader.create_geometry_from_file( name
                                    , path
                                    , material

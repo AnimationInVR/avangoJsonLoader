@@ -175,12 +175,33 @@ class jsonloader:
 
     for mat in json_materials:
       new_mat = avango.gua.nodes.Material()
-      color = avango.gua.Vec4(json_materials[mat]['color'][0], json_materials[mat]['color'][1], json_materials[mat]['color'][2], 1.0)
-      new_mat.set_uniform('Color', color)
-      new_mat.set_uniform('Roughness', json_materials[mat]['roughness'])
-      new_mat.set_uniform('Metalness', json_materials[mat]['metalness'])
-      new_mat.set_uniform('Emissivity', json_materials[mat]['emissivity'])
-      new_mat.set_uniform('Opacity', json_materials[mat]['opacity'])
+
+      if json_materials[mat]['color_map'] == "":
+        color = avango.gua.Vec4(json_materials[mat]['color'][0], json_materials[mat]['color'][1], json_materials[mat]['color'][2], 1.0)
+        new_mat.set_uniform('Color', color)
+        new_mat.set_uniform('Opacity', json_materials[mat]['opacity'])
+      else:
+        new_mat.set_uniform("ColorMap", json_materials[mat]['color_map'])
+
+      if json_materials[mat]['roughness_map'] == "":
+        new_mat.set_uniform('Roughness', json_materials[mat]['roughness'])
+      else:
+        new_mat.set_uniform("RoughnessMap", json_materials[mat]['roughness_map'])
+
+      if json_materials[mat]['metalness_map'] == "":
+        new_mat.set_uniform('Metalness', json_materials[mat]['metalness'])
+      else:
+        new_mat.set_uniform("MetalnessMap", json_materials[mat]['metalness_map'])
+
+      if json_materials[mat]['emissivity_map'] == "":
+        new_mat.set_uniform('Emissivity', json_materials[mat]['emissivity'])
+      else:
+        new_mat.set_uniform("EmissivityMap", json_materials[mat]['emissivity_map'])
+
+      if not json_materials[mat]['normal_map'] == "":
+        new_mat.set_uniform("NormalMap", json_materials[mat]['normal_map'])
+
+
       new_mat.EnableBackfaceCulling.value = json_materials[mat]['backface_culling']
       self.materials[mat] = new_mat
 

@@ -305,18 +305,20 @@ class jsonloader:
 
     transform = load_transform_matrix( json_light["transform"] )
 
-    distance = json_light["distance"]
-    transform = transform * avango.gua.make_scale_mat(distance)
+    transform = transform
 
     color = avango.gua.Color(json_light["color"][0], json_light["color"][1], json_light["color"][2])
 
-    energy = json_light["energy"]
+    brightness = json_light["brightness"]
 
-    light = avango.gua.nodes.PointLightNode(Name = name
-                                           ,Transform = transform
-                                           ,Color = color
-                                           ,EnableShadows = True
-                                           ,Brightness = energy * 10)
+    light_type = eval("avango.gua.LightType." + json_light["type"])
+
+    light = avango.gua.nodes.LightNode(Name = name
+                                      ,Type = light_type
+                                      ,Transform = transform
+                                      ,Color = color
+                                      ,EnableShadows = True
+                                      ,Brightness = brightness)
 
     return light, parent_name
 

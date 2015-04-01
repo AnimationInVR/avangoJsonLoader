@@ -5,7 +5,6 @@ import avango.gua.skelanim
 import field_containers
 import application
 
-
 import json
 import math
 
@@ -73,8 +72,9 @@ class jsonloader:
 
   def create_field_containers(self):
     # TODO do something not useless
+    self.create_time_sensor()
     for ts in self.json_data["time_sensors"]:
-      self.create_time_sensor(ts)
+      self.setup_time_sensor(ts)
 
     for rm in self.json_data["rotation_matrices"]:
       self.create_rotation_matrix(rm)
@@ -95,18 +95,20 @@ class jsonloader:
       self.create_float_math(fm)
 
 
-  def create_time_sensor(self, time_sensor):
-    json_time_sensor = self.json_data["time_sensors"][time_sensor]
+  def create_time_sensor(self):
 
-    name = json_time_sensor["name"]
+    name = "time_sensor"
 
     new_time_sensor = avango.nodes.TimeSensor(Name = name)
 
     self.app.add_field_container(new_time_sensor)
 
+  
+  def setup_time_sensor(self, time_sensor):
+    json_time_sensor = self.json_data["time_sensors"][time_sensor]
     for fieldconnection in json_time_sensor["field_connections"]:
-      self.app.plan_field_connection(name, fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
-      
+      self.app.plan_field_connection("time_sensor", fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
+
 
   def create_rotation_matrix(self, rotation_matrix):
     new_field_container = field_containers.rotation_matrix.RotationMatrix()
@@ -121,8 +123,17 @@ class jsonloader:
 
     ref_name = json_fcfo["referenced_name"]
     ref_name = ref_name.replace('.', '_')
-
     obj = self.nodes[ref_name]
+
+    if json_fcfo["import_action"] == True:
+      new_action = field_containers.action.Action()
+      new_action.constructor(json_fcfo['keyframes'])
+      new_action.Name.value = ref_name + '_action'
+      self.app.add_field_container(new_action)
+      
+      self.app.plan_field_connection(new_action.Name.value, "OutTransform", ref_name, "Transform")
+      self.app.plan_field_connection("time_sensor", "Time", new_action.Name.value, "Time")
+
     self.app.add_field_container(obj)
 
   def create_vec3(self, vec3):

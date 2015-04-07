@@ -22,6 +22,7 @@ class Action(avango.script.Script):
     #Stuff
     self.frame_count = 0
     self.duration = 0.0
+    self.loop = False
 
   def constructor(self, json_keyframes):
     for frame in json_keyframes:
@@ -44,8 +45,9 @@ class Action(avango.script.Script):
       self.OutTransform.value = avango.gua.make_identity_mat() 
 
   def get_time(self):
-    # return self.Time.value
-    return self.Time.value % self.duration
+    if self.loop:
+      return self.Time.value % self.duration
+    return self.Time.value
 
   def find_key_frame(self):
     time = self.get_time()

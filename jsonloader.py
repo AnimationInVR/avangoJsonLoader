@@ -129,8 +129,9 @@ class jsonloader:
       new_action = field_containers.action.Action()
       new_action.constructor(json_fcfo['keyframes'])
       new_action.Name.value = ref_name + '_action'
-      self.app.add_field_container(new_action)
+      new_action.loop = json_fcfo['loop_action']
       
+      self.app.add_field_container(new_action)
       self.app.plan_field_connection(new_action.Name.value, "OutTransform", ref_name, "Transform")
       self.app.plan_field_connection("time_sensor", "Time", new_action.Name.value, "Time")
 

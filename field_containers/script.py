@@ -32,6 +32,8 @@ def create_new_script(json, app, filepath):
 def load_field_value(field, json_value):
   if isinstance(field, avango.SFFloat):
     return json_value
+  elif isinstance(field, avango.SFBool):
+    return json_value
   elif isinstance(field, avango.gua.SFVec3):
     return load_vec3_value(json_value)
   elif isinstance(field, avango.gua.SFMatrix4):

@@ -2,6 +2,7 @@ import avango
 import avango.gua
 import avango.gua.skelanim
 from avango.gua.skelanim.AnimationControl import AnimationControl
+from examples_common import device
 
 import field_containers
 import application
@@ -77,6 +78,10 @@ class jsonloader:
     for ts in self.json_data["time_sensors"]:
       self.setup_time_sensor(ts)
 
+    self.create_keyboard()
+    for k in self.json_data["keyboards"]:
+      self.setup_keyboard(k)
+
     for rm in self.json_data["rotation_matrices"]:
       self.create_rotation_matrix(rm)
 
@@ -95,21 +100,27 @@ class jsonloader:
     for fm in self.json_data["floatmaths"]:
       self.create_float_math(fm)
 
-
+  # TIME SENSOR
   def create_time_sensor(self):
-
     name = "time_sensor"
-
     new_time_sensor = avango.nodes.TimeSensor(Name = name)
-
     self.app.add_field_container(new_time_sensor)
-
   
   def setup_time_sensor(self, time_sensor):
     json_time_sensor = self.json_data["time_sensors"][time_sensor]
     for fieldconnection in json_time_sensor["field_connections"]:
       self.app.plan_field_connection("time_sensor", fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
 
+  # KEYBOARD
+  def create_keyboard(self):
+    new_keyboard = device.KeyboardDevice()
+    new_keyboard.Name.value = "keyboard"
+    self.app.add_field_container(new_keyboard)
+
+  def setup_keyboard(self, keyboard):
+    json_keyboard = self.json_data["keyboards"][keyboard]
+    for fieldconnection in json_keyboard["field_connections"]:
+      self.app.plan_field_connection("keyboard", fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
 
   def create_rotation_matrix(self, rotation_matrix):
     new_field_container = field_containers.rotation_matrix.RotationMatrix()

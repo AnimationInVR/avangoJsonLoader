@@ -34,6 +34,8 @@ def load_field_value(field, json_value):
     return json_value
   elif isinstance(field, avango.SFBool):
     return json_value
+  elif isinstance(field, avango.SFInt):
+    return json_value
   elif isinstance(field, avango.gua.SFVec3):
     return load_vec3_value(json_value)
   elif isinstance(field, avango.gua.SFMatrix4):

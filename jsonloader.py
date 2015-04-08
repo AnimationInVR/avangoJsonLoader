@@ -1,6 +1,7 @@
 import avango
 import avango.gua
 import avango.gua.skelanim
+from avango.gua.skelanim.AnimationControl import AnimationControl
 
 import field_containers
 import application
@@ -134,6 +135,13 @@ class jsonloader:
       self.app.add_field_container(new_action)
       self.app.plan_field_connection(new_action.Name.value, "OutTransform", ref_name, "Transform")
       self.app.plan_field_connection("time_sensor", "Time", new_action.Name.value, "Time")
+
+    if not json_fcfo["animation_path"] == "":
+      self.SkelMeshLoader.load_animation(obj, json_fcfo["animation_path"], "idle")
+      AC = AnimationControl()
+      AC.Name.value = "animation_control_for_" + ref_name
+      AC.my_constructor(obj)
+      self.app.add_field_container(AC)
 
     self.app.add_field_container(obj)
 

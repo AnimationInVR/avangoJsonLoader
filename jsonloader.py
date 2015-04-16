@@ -1,7 +1,9 @@
 import avango
 import avango.gua
+
 import avango.gua.skelanim
-from avango.gua.skelanim.AnimationControl import AnimationControl
+from avango.gua.skelanim.AnimationControl import *
+
 from examples_common import device
 
 import field_containers
@@ -151,7 +153,7 @@ class jsonloader:
       obj.load_animation(json_fcfo["animation_path"], "idle")
       AC = AnimationControl()
       AC.Name.value = "animation_control_for_" + ref_name
-      AC.my_constructor(obj)
+      AC.my_constructor(obj, AnimationConfig("idle"))
       self.app.add_field_container(AC)
 
     self.app.add_field_container(obj)

@@ -59,7 +59,7 @@ def start():
   bob_nav = app.field_containers["bob_nav"]
 
   cc_run = CharacterControl(Name="bobs_cc")
-  cc_run.my_constructor(bob, bob_nav, app.window)
+  cc_run.my_constructor(bob, bob_nav, AnimationConfig("idle"), app.window)
   cc_run.activate_wall_detection(0.1, 0.2, "idle", app.scenegraph)
   
   # animation and move
@@ -101,7 +101,7 @@ def start():
   action_bob.load_animation("/opt/project_animation/Assets/UnrealTournament/UniversalAnimations/Jump_Idle_DPi_Land.FBX", "jump_land")
   
   cc_fall = CharacterControl(Name="action_bobs_cc")
-  cc_fall.my_constructor(action_bob, action_bob, app.window)
+  cc_fall.my_constructor(action_bob, action_bob, AnimationConfig("idle"), app.window)
 
   # cc_fall.on_animation_end("jump_land",AnimationConfig("idle"))
   
@@ -132,7 +132,7 @@ def start():
   bob_loop.load_animation("/opt/project_animation/Assets/UnrealTournament/UniversalAnimations/Run_Fwd_DPi.FBX", "run2")
 
   cc_bob_loop = CharacterControl(Name="cc_bob_loop")
-  cc_bob_loop.my_constructor(bob_loop, bob_loop, app.window)
+  cc_bob_loop.my_constructor(bob_loop, bob_loop, AnimationConfig("idle"), app.window)
 
   cc_bob_loop.on_animation_end("idle", AnimationConfig("run", False, duration=3.0), 0.2)
   cc_bob_loop.on_animation_end("run", AnimationConfig("idle2", True, duration=1.0), 0.2)
@@ -153,7 +153,7 @@ def start():
   bob_speed.load_animation("/opt/project_animation/Assets/UnrealTournament/UniversalAnimations/Run_Fwd_DPi.FBX", "run2")
 
   cc_bob_speed = CharacterControl(Name="cc_bob_speed")
-  cc_bob_speed.my_constructor(bob_speed, bob_speed, app.window)
+  cc_bob_speed.my_constructor(bob_speed, bob_speed, AnimationConfig("idle"), app.window)
 
   cc_bob_speed.on_animation_end("idle", AnimationConfig("run", True, speed=0.5 ,duration=3.0), 0.2)
   cc_bob_speed.on_animation_end("run", AnimationConfig("idle2", True, duration=1.0), 0.2)
@@ -174,7 +174,7 @@ def start():
   bob_duration.load_animation("/opt/project_animation/Assets/UnrealTournament/UniversalAnimations/Run_Fwd_DPi.FBX", "run2")
 
   cc_bob_duration = CharacterControl(Name="cc_bob_duration")
-  cc_bob_duration.my_constructor(bob_duration, bob_duration, app.window)
+  cc_bob_duration.my_constructor(bob_duration, bob_duration, AnimationConfig("idle"), app.window)
 
   cc_bob_duration.on_animation_end("idle", AnimationConfig("run", True, duration=2.0), 0.2)
   cc_bob_duration.on_animation_end("run", AnimationConfig("idle2", True, duration=1.0), 0.2)

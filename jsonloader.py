@@ -109,7 +109,7 @@ class jsonloader:
   def setup_time_sensor(self, time_sensor):
     json_time_sensor = self.json_data["time_sensors"][time_sensor]
     for fieldconnection in json_time_sensor["field_connections"]:
-      self.app.plan_field_connection("time_sensor", fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
+      self.app.plan_time_field_connection("time_sensor", fieldconnection["from_field"], fieldconnection["to_node"], fieldconnection["to_field"])
 
   # KEYBOARD
   def create_keyboard(self):
@@ -145,10 +145,10 @@ class jsonloader:
       
       self.app.add_field_container(new_action)
       self.app.plan_field_connection(new_action.Name.value, "OutTransform", ref_name, "Transform")
-      self.app.plan_field_connection("time_sensor", "Time", new_action.Name.value, "Time")
+      self.app.plan_time_field_connection("time_sensor", "Time", new_action.Name.value, "Time")
 
     if not json_fcfo["animation_path"] == "":
-      self.SkelMeshLoader.load_animation(obj, json_fcfo["animation_path"], "idle")
+      obj.load_animation(json_fcfo["animation_path"], "idle")
       AC = AnimationControl()
       AC.Name.value = "animation_control_for_" + ref_name
       AC.my_constructor(obj)
@@ -208,6 +208,7 @@ class jsonloader:
       new_mat = avango.gua.nodes.Material()
 
       if json_materials[mat]['color_map'] == "":
+      # if True:
         color = avango.gua.Vec4(json_materials[mat]['color'][0], json_materials[mat]['color'][1], json_materials[mat]['color'][2], 1.0)
         new_mat.set_uniform('Color', color)
         new_mat.set_uniform('Opacity', json_materials[mat]['opacity'])
@@ -263,7 +264,8 @@ class jsonloader:
       geometry = self.TriMeshLoader.create_geometry_from_file( name
                                    , path
                                    , material
-                                   , 0)
+                                   , avango.gua.LoaderFlags.MAKE_PICKABLE)
+                                   # , 0)
 
     geometry.Transform.value = transform
 

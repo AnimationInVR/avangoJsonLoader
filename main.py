@@ -24,6 +24,7 @@ class Starter(avango.script.Script):
     self.always_evaluate(True)
 
     self.KeyT = False
+    self.KeyY = False
 
   def myConstructor(self, app):
     self.app = app
@@ -32,9 +33,17 @@ class Starter(avango.script.Script):
   def evaluate(self):
     if self.keyboard.KeyT.value and not self.KeyT:
       self.app.start()
-      # pass
     self.KeyT = self.keyboard.KeyT.value
 
+    if self.keyboard.KeyY.value and not self.KeyY:
+      tm = self.app.field_containers["Translation Matrix"]
+      torus = self.app.field_containers["Torus"] 
+      torus_2 = self.app.field_containers["Torus_2"] 
+    
+      torus.Transform.connect_from(tm.Matrix)
+      torus_2.Transform.connect_from(tm.Matrix)
+
+    self.KeyY = self.keyboard.KeyY.value
 
 
 def start():

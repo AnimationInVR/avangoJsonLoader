@@ -25,6 +25,8 @@ class Starter(avango.script.Script):
 
     self.KeyT = False
     self.KeyY = False
+    self.KeyU = False
+    self.KeyI = False
 
   def myConstructor(self, app):
     self.app = app
@@ -36,15 +38,23 @@ class Starter(avango.script.Script):
     self.KeyT = self.keyboard.KeyT.value
 
     if self.keyboard.KeyY.value and not self.KeyY:
+      mp = self.app.field_containers["material_panel"]
+      mp.Transform.value *= avango.gua.make_trans_mat(0.0, 0.0, 0.3)
+      self.KeyY = True
+
+    if self.keyboard.KeyU.value and not self.KeyU:
       tm = self.app.field_containers["Translation Matrix"]
       torus = self.app.field_containers["Torus"] 
       torus_2 = self.app.field_containers["Torus_2"] 
     
       torus.Transform.connect_from(tm.Matrix)
       torus_2.Transform.connect_from(tm.Matrix)
+    self.KeyU = self.keyboard.KeyU.value
 
-    self.KeyY = self.keyboard.KeyY.value
-
+    if self.keyboard.KeyI.value and not self.KeyI:
+      tm = self.app.field_containers["start_button"]
+      tm.Transform.value *= avango.gua.make_trans_mat(0.0, 0.0, 0.3)
+      self.KeyI = True
 
 def start():
 
@@ -96,6 +106,7 @@ def start():
     OffsetToGround = 0.2,
     MaxDistanceToGround = 5.0
   )
+  ground_following.my_constructor(gravity = -0.002, init_matrix_out = avango.gua.make_rot_mat(90, 1.0, 0.0, 0.0))
   ground_following.InTransform.connect_from(bob.WorldTransform)
   bob_ground.Transform.connect_from(ground_following.OutTransform)
   app.add_field_container(cc_run)
@@ -118,8 +129,9 @@ def start():
     Name = "gf_action",
     SceneGraph = app.scenegraph,
     OffsetToGround = 0.2,
-    MaxDistanceToGround = 5.0
+    MaxDistanceToGround = 5.0,
   )
+  ground_following.my_constructor(gravity = -0.002, init_matrix_out = avango.gua.make_rot_mat(90, 1.0, 0.0, 0.0))
   ground_following.InTransform.connect_from(action_bob.WorldTransform)
 
   distance_events = DistanceEvents()

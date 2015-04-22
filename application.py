@@ -33,8 +33,8 @@ class Application:
 
   def basic_setup(self):
 
-    size = avango.gua.Vec2ui(2560, 1440)
-    # size = avango.gua.Vec2ui(1920, 1200)
+    # size = avango.gua.Vec2ui(2560, 1440)
+    size = avango.gua.Vec2ui(1920, 1080)
 
     # self.camera = avango.gua.nodes.CameraNode(
     #   LeftScreenPath = "/screen",
